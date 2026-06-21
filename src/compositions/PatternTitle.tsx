@@ -46,6 +46,11 @@ export const patternTitleSchema = z.object({
   sfx: z.boolean().optional(), // play a slap SFX on each title reveal
   audioReactive: z.boolean().optional(), // pulse the pattern to the music's energy
   intro: z.enum(["none", "flood"]).optional(), // "flood" = full-screen colour grid sweep
+  floodStyle: z.enum(["random", "sweep"]).optional(),
+  floodSpeed: z.number().min(1).max(10).optional(),
+  floodTile: z.number().min(1).max(10).optional(),
+  floodShapes: z.number().min(0).max(10).optional(),
+  floodPersist: z.boolean().optional(),
 });
 export type PatternTitleProps = z.infer<typeof patternTitleSchema>;
 
@@ -69,6 +74,11 @@ export const patternTitleDefaults: PatternTitleProps = {
   sfx: false,
   audioReactive: false,
   intro: "none",
+  floodStyle: "random",
+  floodSpeed: 5,
+  floodTile: 6,
+  floodShapes: 5,
+  floodPersist: true,
 };
 
 // Approximate the bounding box of a title so the engine keeps patterns clear of it.
@@ -124,6 +134,7 @@ const TitleBlock: React.FC<{ t: TitleItem; accent: string; clip: string }> = ({ 
 
 export const PatternTitle: React.FC<PatternTitleProps> = ({
   titles, seed, density, proximity, accent, bgColor, bgImage, stagger, shapes, paint, colors, showGrid, music, sfx, audioReactive, intro,
+  floodStyle, floodSpeed, floodTile, floodShapes, floodPersist,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -167,7 +178,8 @@ export const PatternTitle: React.FC<PatternTitleProps> = ({
 
       {intro === "flood" ? (
         <AbsoluteFill>
-          <FloodField accent={accent} colors={colors} seed={seed} begin={2} />
+          <FloodField accent={accent} colors={colors} seed={seed} begin={2}
+            style={floodStyle} speed={floodSpeed} tile={floodTile} shapes={floodShapes} persist={floodPersist} />
         </AbsoluteFill>
       ) : null}
 

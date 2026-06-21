@@ -90,6 +90,11 @@ export const RemotionRoot: React.FC = () => {
           sfx: false,
           audioReactive: false,
           intro: "none",
+          floodStyle: "random",
+          floodSpeed: 5,
+          floodTile: 6,
+          floodShapes: 5,
+          floodPersist: true,
         }}
       />
 

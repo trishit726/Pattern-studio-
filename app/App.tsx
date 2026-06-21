@@ -269,8 +269,25 @@ export const App: React.FC = () => {
             <button className={(props.intro ?? "none") === "none" ? "link-btn accent" : "link-btn"} onClick={() => set("intro", "none")}>Scatter</button>
             <button className={props.intro === "flood" ? "link-btn accent" : "link-btn"} onClick={() => set("intro", "flood")}>Flood</button>
           </div>
-          <div style={{ ...S.status, marginTop: 8 }}>Flood = a full-screen colour grid sweeps in, then clears to reveal the title. Scrub to the start to see it.</div>
+          <div style={{ ...S.status, marginTop: 8 }}>Flood = a full-screen colour grid fills in, behind the title. Scrub to the start to see it.</div>
         </Section>
+
+        {props.intro === "flood" ? (
+          <>
+            <Section title="Flood Style">
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <button className={(props.floodStyle ?? "random") === "random" ? "link-btn accent" : "link-btn"} onClick={() => set("floodStyle", "random")}>Random</button>
+                <button className={props.floodStyle === "sweep" ? "link-btn accent" : "link-btn"} onClick={() => set("floodStyle", "sweep")}>Sweep</button>
+                <button className={(props.floodPersist ?? true) ? "link-btn accent" : "link-btn"} onClick={() => set("floodPersist", !(props.floodPersist ?? true))}>{(props.floodPersist ?? true) ? "Stays" : "Clears"}</button>
+              </div>
+              <div style={{ ...S.status, marginTop: 8 }}>Random = pixels pop up scattered · Sweep = diagonal wipe · Stays/Clears = keep the grid or let it recede.</div>
+            </Section>
+            <Section title="Flood Speed" value={props.floodSpeed ?? 5}><BarSlider value={props.floodSpeed ?? 5} min={1} max={10} onChange={(v) => set("floodSpeed", v)} /></Section>
+            <Section title="Flood Tile Size" value={props.floodTile ?? 6}><BarSlider value={props.floodTile ?? 6} min={1} max={10} onChange={(v) => set("floodTile", v)} /></Section>
+            <Section title="Flood Shapes" value={props.floodShapes ?? 5}><BarSlider value={props.floodShapes ?? 5} min={0} max={10} onChange={(v) => set("floodShapes", v)} /></Section>
+            <div style={S.status}>Flood colours come from your <b>Color Set</b> + title colour below.</div>
+          </>
+        ) : null}
 
         <div>
           <div style={{ ...S.sectionTitle, cursor: "pointer" }} onClick={() => set("shapes", allShapes ? [] : [...ANIM_TYPES])}>
