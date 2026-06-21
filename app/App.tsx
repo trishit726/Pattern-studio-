@@ -45,6 +45,11 @@ export const App: React.FC = () => {
   React.useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
 
   const set = <K extends keyof PatternTitleProps>(k: K, v: PatternTitleProps[K]) => setProps((p) => ({ ...p, [k]: v }));
+  // Reactive needs a music track to react to, so toggling it on also turns music on.
+  const toggleReactive = () => setProps((p) => {
+    const on = !p.audioReactive;
+    return { ...p, audioReactive: on, music: on ? (p.music || MUSIC) : p.music };
+  });
   const inputProps = useMemo(() => props, [props]);
   const sel = props.titles.find((t) => t.id === selectedId);
 
@@ -175,6 +180,7 @@ export const App: React.FC = () => {
           <button className="link-btn accent" disabled={rendering} onClick={render}>{rendering ? "Rendering…" : "Render"}</button>
           {comp === "PatternTitle" ? <button className={props.showGrid ? "link-btn accent" : "link-btn"} onClick={() => set("showGrid", !props.showGrid)}>Grid</button> : null}
           {comp === "PatternTitle" ? <button className={props.intro === "flood" ? "link-btn accent" : "link-btn"} onClick={() => set("intro", props.intro === "flood" ? "none" : "flood")}>Flood</button> : null}
+          {comp === "PatternTitle" ? <button className={props.audioReactive ? "link-btn accent" : "link-btn"} onClick={toggleReactive}>Reactive</button> : null}
           <button className="link-btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? "Dark" : "Light"}</button>
         </div>
       </header>
@@ -330,7 +336,7 @@ export const App: React.FC = () => {
           <div style={{ display: "flex", gap: 18 }}>
             <button className={props.music ? "link-btn accent" : "link-btn"} onClick={() => set("music", props.music ? "" : MUSIC)}>Music</button>
             <button className={props.sfx ? "link-btn accent" : "link-btn"} onClick={() => set("sfx", !props.sfx)}>SFX</button>
-            <button className={props.audioReactive ? "link-btn accent" : "link-btn"} onClick={() => set("audioReactive", !props.audioReactive)}>Reactive</button>
+            <button className={props.audioReactive ? "link-btn accent" : "link-btn"} onClick={toggleReactive}>Reactive</button>
           </div>
           <div style={{ ...S.status, marginTop: 8 }}>{props.audioReactive ? (props.music ? "Shapes & dots pulse to the music." : "Turn on Music to drive the reactive pulse.") : "Reactive = beat-synced shape & dot pulse."}</div>
         </Section>

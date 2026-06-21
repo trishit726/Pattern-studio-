@@ -152,7 +152,7 @@ export const PatternField: React.FC<{
               background: t.colors.bg,
               clipPath: clipFor(t.clipSide, p),
               WebkitClipPath: clipFor(t.clipSide, p),
-              transform: amp ? `scale(${1 + amp * 0.32})` : undefined,
+              transform: amp ? `scale(${1 + amp * 0.55})` : undefined,
               transformOrigin: "center",
             }}
           >
@@ -177,8 +177,8 @@ export const PatternField: React.FC<{
               height: 9,
               borderRadius: 3,
               background: d.color,
-              opacity: Math.min(1, appear * (0.4 + 0.6 * blink) * (1 + amp * 0.9)),
-              transform: amp ? `scale(${1 + amp * 0.7})` : undefined,
+              opacity: Math.min(1, appear * (0.4 + 0.6 * blink) * (1 + amp * 1.3)),
+              transform: amp ? `scale(${1 + amp * 1.1})` : undefined,
             }}
           />
         );

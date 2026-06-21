@@ -190,8 +190,9 @@ const ReactiveField: React.FC<React.ComponentProps<typeof PatternField> & { musi
   const audioData = useAudioData(resolveSrc(music));
   let amp = 0;
   if (audioData) {
-    const bins = visualizeAudio({ fps, frame, audioData, numberOfSamples: 16, optimizeFor: "speed" });
-    amp = Math.min(1, (((bins[0] ?? 0) + (bins[1] ?? 0) + (bins[2] ?? 0)) / 3) * 2.4);
+    const bins = visualizeAudio({ fps, frame, audioData, numberOfSamples: 32, optimizeFor: "speed" });
+    const low = ((bins[0] ?? 0) + (bins[1] ?? 0) + (bins[2] ?? 0) + (bins[3] ?? 0)) / 4;
+    amp = Math.min(1, low * 3.2);
   }
   return <PatternField {...rest} amp={amp} />;
 };
