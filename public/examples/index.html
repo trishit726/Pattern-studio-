@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pattern Studio — Example Scenes</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0c0d10; color: #f3efe6; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
+  header { padding: 48px 40px 8px; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: .04em; }
+  p.sub { margin: 8px 0 0; color: #9aa0a6; font-size: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 22px; padding: 28px 40px 56px; }
+  .card { margin: 0; background: #15171c; border: 1px solid #23262e; border-radius: 12px; overflow: hidden; }
+  .card img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+  figcaption { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
+  .prompt { font-size: 14px; color: #cdd2da; }
+  .sw { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #8b9098; white-space: nowrap; }
+  .sw i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #333; }
+</style></head>
+<body>
+  <header>
+    <h1>Pattern Studio — Example Scenes</h1>
+    <p class="sub">Each designed from a one-line prompt: different brand, palette, title colour &amp; background.</p>
+  </header>
+  <div class="grid">
+    <figure class="card">
+      <img src="coffee.png" alt="coffee" />
+      <figcaption>
+        <span class="prompt">“Ember — a warm, rustic specialty coffee roaster”</span>
+        <span class="sw"><i style="background:#241a14"></i>bg <i style="background:#e0573a"></i>title</span>
+      </figcaption>
+    </figure>
+    <figure class="card">
+      <img src="ai.png" alt="ai" />
+      <figcaption>
+        <span class="prompt">“NeuralForge — an AI infrastructure startup”</span>
+        <span class="sw"><i style="background:#0e1117"></i>bg <i style="background:#3fd6c2"></i>title</span>
+      </figcaption>
+    </figure>
+    <figure class="card">
+      <img src="fitness.png" alt="fitness" />
+      <figcaption>
+        <span class="prompt">“Iron Pulse — a high-energy fitness brand”</span>
+        <span class="sw"><i style="background:#14181d"></i>bg <i style="background:#c6f24e"></i>title</span>
+      </figcaption>
+    </figure>
+    <figure class="card">
+      <img src="luxury.png" alt="luxury" />
+      <figcaption>
+        <span class="prompt">“Maison Noir — a luxury couture atelier”</span>
+        <span class="sw"><i style="background:#efe9dd"></i>bg <i style="background:#d8b25a"></i>title</span>
+      </figcaption>
+    </figure>
+    <figure class="card">
+      <img src="festival.png" alt="festival" />
+      <figcaption>
+        <span class="prompt">“Neon Nights — a summer music festival”</span>
+        <span class="sw"><i style="background:#1a0f2e"></i>bg <i style="background:#ff5db1"></i>title</span>
+      </figcaption>
+    </figure>
+    <figure class="card">
+      <img src="travel.png" alt="travel" />
+      <figcaption>
+        <span class="prompt">“Wild North — an outdoor travel & adventure brand”</span>
+        <span class="sw"><i style="background:#123b3a"></i>bg <i style="background:#f0a541"></i>title</span>
+      </figcaption>
+    </figure>
+  </div>
+</body></html>

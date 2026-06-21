@@ -89,6 +89,7 @@ export const RemotionRoot: React.FC = () => {
           music: "",
           sfx: false,
           audioReactive: false,
+          intro: "none",
         }}
       />
 

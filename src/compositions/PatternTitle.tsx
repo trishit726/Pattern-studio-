@@ -10,6 +10,7 @@ import { zColor } from "@remotion/zod-types";
 import { loadFont as loadAnton } from "@remotion/google-fonts/Anton";
 import { loadFont as loadJP } from "@remotion/google-fonts/ShipporiMincho";
 import { PatternField } from "../lib/patterngen/PatternField";
+import { FloodField } from "../lib/patterngen/FloodField";
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
 import { GrainOverlay, PaintedImage } from "../lib/textures";
 import type { TitleRect, AnimType } from "../lib/patterngen/engine";
@@ -44,6 +45,7 @@ export const patternTitleSchema = z.object({
   music: z.string().optional(), // public/ path for a lo-fi bed, e.g. "music/lofi.mp3"
   sfx: z.boolean().optional(), // play a slap SFX on each title reveal
   audioReactive: z.boolean().optional(), // pulse the pattern to the music's energy
+  intro: z.enum(["none", "flood"]).optional(), // "flood" = full-screen colour grid sweep
 });
 export type PatternTitleProps = z.infer<typeof patternTitleSchema>;
 
@@ -66,6 +68,7 @@ export const patternTitleDefaults: PatternTitleProps = {
   music: "",
   sfx: false,
   audioReactive: false,
+  intro: "none",
 };
 
 // Approximate the bounding box of a title so the engine keeps patterns clear of it.
@@ -120,7 +123,7 @@ const TitleBlock: React.FC<{ t: TitleItem; accent: string; clip: string }> = ({ 
 };
 
 export const PatternTitle: React.FC<PatternTitleProps> = ({
-  titles, seed, density, proximity, accent, bgColor, bgImage, stagger, shapes, paint, colors, showGrid, music, sfx, audioReactive,
+  titles, seed, density, proximity, accent, bgColor, bgImage, stagger, shapes, paint, colors, showGrid, music, sfx, audioReactive, intro,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -161,6 +164,12 @@ export const PatternTitle: React.FC<PatternTitleProps> = ({
       ) : (
         <PatternField {...fieldProps} />
       )}
+
+      {intro === "flood" ? (
+        <AbsoluteFill>
+          <FloodField accent={accent} colors={colors} seed={seed} begin={2} />
+        </AbsoluteFill>
+      ) : null}
 
       <AbsoluteFill>
         {titles.map((t, i) => {

@@ -20,6 +20,7 @@ Pattern Studio collapses that to: **prompt → editable scene → MP4.**
 - **AI script‑writer** — one click writes a 45–75s voiceover script for your demo/brand video.
 - **Live editor** — drag titles, adjust density/proximity/stagger, pick shapes and brand colours, add music/SFX, toggle an alignment grid, save/load scenes as JSON. Everything the AI generates stays fully editable.
 - **One‑click MP4** — a local render server bundles the scene with [Remotion](https://www.remotion.dev) and renders a real H.264 MP4.
+- **Motion styles** — a *scatter* intro (shapes cluster around the title) or a *flood* intro (a full-screen colour grid sweeps in, then clears to reveal the title), plus optional *audio-reactive* pulsing synced to the music.
 - **Ready‑made films** — composed openers (`Intro`, `Assembly`) you can brand and export as polished bookends.
 
 ---
@@ -31,6 +32,17 @@ Pattern Studio collapses that to: **prompt → editable scene → MP4.**
 A typical flow: type *“Ember — a warm, rustic specialty coffee roaster”* → **Generate Scene** → the editor fills with an on‑brand title, earthy palette, and scattered shapes → drag the title, tweak a slider → **Render** → download the MP4.
 
 ---
+
+## Example scenes — each from a one‑line prompt
+
+|  |  |
+|---|---|
+| ![Ember Coffee](public/examples/coffee.png) | ![Neon Nights](public/examples/festival.png) |
+| *“Ember — a warm, rustic coffee roaster”* | *“Neon Nights — a summer music festival”* |
+| ![Maison Noir](public/examples/luxury.png) | ![Wild North](public/examples/travel.png) |
+| *“Maison Noir — a luxury couture atelier”* | *“Wild North — an outdoor travel brand”* |
+
+Animated `.mp4` versions of all six are in [`public/examples/`](public/examples), with a browsable gallery at `/examples/index.html` when the app is running.
 
 ## Architecture
 

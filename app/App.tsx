@@ -257,6 +257,14 @@ export const App: React.FC = () => {
         <Section title="Proximity" value={props.proximity}><BarSlider value={props.proximity} max={20} onChange={(v) => set("proximity", v)} /></Section>
         <Section title="Stagger" value={props.stagger}><BarSlider value={props.stagger} min={0} max={5} onChange={(v) => set("stagger", v)} /></Section>
 
+        <Section title="Intro Effect">
+          <div style={{ display: "flex", gap: 18 }}>
+            <button className={(props.intro ?? "none") === "none" ? "link-btn accent" : "link-btn"} onClick={() => set("intro", "none")}>Scatter</button>
+            <button className={props.intro === "flood" ? "link-btn accent" : "link-btn"} onClick={() => set("intro", "flood")}>Flood</button>
+          </div>
+          <div style={{ ...S.status, marginTop: 8 }}>Flood = a full-screen colour grid sweeps in, then clears to reveal the title. Scrub to the start to see it.</div>
+        </Section>
+
         <div>
           <div style={{ ...S.sectionTitle, cursor: "pointer" }} onClick={() => set("shapes", allShapes ? [] : [...ANIM_TYPES])}>
             Shapes <span style={S.valueNum}>{allShapes ? "deselect all" : "select all"}</span>
