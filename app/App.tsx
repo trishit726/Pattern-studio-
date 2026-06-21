@@ -174,6 +174,7 @@ export const App: React.FC = () => {
           {comp === "PatternTitle" ? <button className="link-btn" onClick={() => set("seed", Math.floor(Math.random() * 1e9))}>Generate</button> : null}
           <button className="link-btn accent" disabled={rendering} onClick={render}>{rendering ? "Rendering…" : "Render"}</button>
           {comp === "PatternTitle" ? <button className={props.showGrid ? "link-btn accent" : "link-btn"} onClick={() => set("showGrid", !props.showGrid)}>Grid</button> : null}
+          {comp === "PatternTitle" ? <button className={props.intro === "flood" ? "link-btn accent" : "link-btn"} onClick={() => set("intro", props.intro === "flood" ? "none" : "flood")}>Flood</button> : null}
           <button className="link-btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? "Dark" : "Light"}</button>
         </div>
       </header>
