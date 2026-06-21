@@ -20,7 +20,7 @@ High‑end motion graphics are gatekept. A single animated brand title can cost 
 
 ## What it does
 Pattern Studio turns a one‑line brand description into a finished animated title:
-- **AI brand‑from‑a‑prompt** — Claude Opus 4.8 designs a full scene from your description: headline + sub‑label, a cohesive colour palette, which geometric shapes to scatter, density/proximity, and layout — returned as structured, validated data that drops straight into the editor.
+- **AI brand‑from‑a‑prompt** — Google Gemini designs a full scene from your description: headline + sub‑label, a cohesive colour palette, which geometric shapes to scatter, density/proximity, and layout — returned as structured, validated data that drops straight into the editor.
 - **Live editor** — drag titles, tune sliders, pick shapes and brand colours, add music/SFX, save/load scenes. Everything the AI makes stays fully editable.
 - **One‑click MP4** — a local render server bundles the scene with Remotion and exports a real H.264 MP4.
 - **AI script‑writer** — one click drafts a 45–75s voiceover script for the brand/demo video.
@@ -30,7 +30,7 @@ Pattern Studio turns a one‑line brand description into a finished animated tit
 - **Remotion 4 + React 19 + TypeScript** for the animated compositions (deterministic, frame‑accurate).
 - A **Vite** editor wrapping the **Remotion Player** for live preview, with Zod‑typed scene props.
 - An **Express render server** that (a) calls **Claude** server‑side for scene + script generation and (b) renders MP4s with `@remotion/renderer`.
-- **Claude Opus 4.8** via **Google Vertex AI** (`@anthropic-ai/vertex-sdk`) or the first‑party **Anthropic API** — selectable with one env flag.
+- **Google Gemini** (`gemini-2.5-flash`) via Google AI Studio (`@google/genai`); a provider-agnostic layer also runs Claude on Vertex (`@anthropic-ai/vertex-sdk`) or the first‑party **Anthropic API** — selectable with one env flag.
 - A deterministic, seeded **pattern engine** (adapted from the MIT‑licensed `patterngen-oss`) that scatters shapes around the title.
 
 ## Challenges we ran into
@@ -50,7 +50,7 @@ Social export presets (9:16, 1:1), audio‑reactive patterns, brand‑kit memory
 ---
 
 ## Technologies Used (comma‑separated for the form)
-React, TypeScript, Remotion, Vite, Node.js, Express, Anthropic Claude (Opus 4.8), Google Cloud Vertex AI, Zod, FFmpeg, ComfyUI / Stable Diffusion (optional), HTML5 Canvas/SVG
+React, TypeScript, Remotion, Vite, Node.js, Express, Google Gemini (Google AI Studio), provider-agnostic AI layer (also Claude via Vertex AI / Anthropic API), Zod, FFmpeg, ComfyUI / Stable Diffusion (optional), HTML5 Canvas/SVG
 
 ## Required submission checklist
 - [ ] Project name: **Pattern Studio**
@@ -70,7 +70,7 @@ React, TypeScript, Remotion, Vite, Node.js, Express, Anthropic Claude (Opus 4.8)
 >
 > **Problem** — “Motion graphics are gatekept — too expensive for small creators, too hard for non‑designers, and template tools all look the same.”
 >
-> **Solution / demo** — “This is Pattern Studio. I describe my brand in one line…” *(type: “Ember — a warm, rustic specialty coffee roaster”)* “…and Claude designs the whole title: the headline, the palette, the pattern, the layout. Everything stays editable — I’ll drag the title, warm up the colour, tweak the density. Then one click…” *(Render)* “…and I’ve got a finished MP4.”
+> **Solution / demo** — “This is Pattern Studio. I describe my brand in one line…” *(type: “Ember — a warm, rustic specialty coffee roaster”)* “…and Gemini designs the whole title: the headline, the palette, the pattern, the layout. Everything stays editable — I’ll drag the title, warm up the colour, tweak the density. Then one click…” *(Render)* “…and I’ve got a finished MP4.”
 >
 > **CTA** — “Prompt to broadcast‑quality motion, in seconds. That’s Pattern Studio — open source on GitHub.”
 

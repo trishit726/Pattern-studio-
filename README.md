@@ -16,7 +16,7 @@ High‑end motion graphics are a bottleneck for creators, founders, and small te
 
 Pattern Studio collapses that to: **prompt → editable scene → MP4.**
 
-- **AI brand‑from‑a‑prompt** — Claude (Opus 4.8) acts as a brand designer: from your description it returns a full scene (title text, sub‑label, colour palette, which of 16 geometric shapes to scatter, density/proximity, and layout coordinates) as validated, structured data that drops straight into the editor.
+- **AI brand‑from‑a‑prompt** — Google Gemini acts as a brand designer: from your description it returns a full scene (title text, sub‑label, colour palette, which of 16 geometric shapes to scatter, density/proximity, and layout coordinates) as validated, structured data that drops straight into the editor.
 - **AI script‑writer** — one click writes a 45–75s voiceover script for your demo/brand video.
 - **Live editor** — drag titles, adjust density/proximity/stagger, pick shapes and brand colours, add music/SFX, toggle an alignment grid, save/load scenes as JSON. Everything the AI generates stays fully editable.
 - **One‑click MP4** — a local render server bundles the scene with [Remotion](https://www.remotion.dev) and renders a real H.264 MP4.
@@ -38,8 +38,8 @@ A typical flow: type *“Ember — a warm, rustic specialty coffee roaster”* �
 flowchart LR
   U[You: one-line brand prompt] --> APP[Pattern Studio editor<br/>React + Vite :5173]
   APP -- POST /generate, /script --> SRV[Render server<br/>Express :3001]
-  SRV -- Messages API --> CLAUDE[Claude Opus 4.8<br/>Vertex AI or Anthropic API]
-  CLAUDE -- structured scene / script --> SRV
+  SRV -- generate / script --> AI[Google Gemini<br/>provider-agnostic: also Claude via Vertex / Anthropic]
+  AI -- structured scene / script --> SRV
   SRV --> APP
   APP -- live preview --> PLAYER[Remotion Player]
   APP -- POST /render --> SRV
@@ -61,7 +61,7 @@ flowchart LR
 | Video / animation | Remotion 4, React 19, TypeScript |
 | Editor | Vite 8, `@remotion/player` |
 | Backend | Node, Express 5, `@remotion/bundler` + `@remotion/renderer` |
-| AI | Claude **Opus 4.8** via **Google Vertex AI** (`@anthropic-ai/vertex-sdk`) or the first‑party **Anthropic API** (`@anthropic-ai/sdk`) |
+| AI | **Google Gemini** (`gemini-2.5-flash`) via Google AI Studio (`@google/genai`); a provider-agnostic layer also runs Claude on **Vertex AI** / the **Anthropic API** |
 | Schemas / validation | Zod 4 |
 | Optional AI image | Local ComfyUI (Stable Diffusion img2img) watercolour pass |
 
@@ -74,19 +74,22 @@ npm install
 cp .env.example .env      # then edit (see below)
 ```
 
-**Connect Claude** — pick one provider in `.env`:
+**Connect an AI provider** — pick one in `.env`:
 
 ```bash
-# Option A — Google Vertex AI (uses GCP credits; auth via gcloud ADC)
-CLAUDE_PROVIDER=vertex
-ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
-CLOUD_ML_REGION=global
-#   prerequisites: gcloud auth application-default login
-#                  + Vertex AI API enabled + Claude quota granted on the project
+# Option A — Google Gemini (free key from https://aistudio.google.com)
+CLAUDE_PROVIDER=gemini
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash
 
-# Option B — first-party Anthropic API
-CLAUDE_PROVIDER=anthropic
-ANTHROPIC_API_KEY=sk-ant-...
+# Option B — Claude on Google Vertex AI (GCP credits; gcloud ADC + granted quota)
+# CLAUDE_PROVIDER=vertex
+# ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
+# CLOUD_ML_REGION=global
+
+# Option C — first-party Anthropic API
+# CLAUDE_PROVIDER=anthropic
+# ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 **Run it** (two terminals):
@@ -110,11 +113,11 @@ npx remotion render PatternTitle out/title.mp4 --codec=h264 --crf=18 --port=4001
 
 ## How the AI works
 
-`POST /generate` sends your prompt to Claude with a system prompt that frames it as a brand/motion designer and specifies an exact JSON shape. The server then **validates and clamps every field** (coordinates to 0–1, sizes and slider ranges to their bounds, shape ids to the known set, colours to valid hex) before returning it — the model's output is never trusted blindly. The result maps 1:1 onto the `PatternTitle` composition's Zod schema, so it renders immediately and stays editable.
+`POST /generate` sends your prompt to the model (Google Gemini by default) with a system prompt that frames it as a brand/motion designer and specifies an exact JSON shape. The server then **validates and clamps every field** (coordinates to 0–1, sizes and slider ranges to their bounds, shape ids to the known set, colours to valid hex) before returning it — the model's output is never trusted blindly. The result maps 1:1 onto the `PatternTitle` composition's Zod schema, so it renders immediately and stays editable.
 
 `POST /script` returns a short, structured voiceover script (hook → problem → solution → CTA) for the demo video.
 
-Both run on whichever provider `.env` selects — switching between Vertex and the Anthropic API is a one‑line change.
+Both run on whichever provider `.env` selects — Gemini, Claude on Vertex, or the Anthropic API — a one‑line change.
 
 ---
 
