@@ -7,6 +7,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import Anthropic from "@anthropic-ai/sdk";
+import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
 import path from "node:path";
 import fs from "node:fs";
 import { randomUUID } from "node:crypto";
@@ -107,12 +108,27 @@ async function paintWithComfy(srcPath, { prompt, denoise, seed, id }) {
 // To use Google Cloud / Vertex credits instead, swap `new Anthropic()` for the
 // AnthropicVertex client from `@anthropic-ai/vertex-sdk` (same call shape).
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-4-8";
-let anthropic = null;
+// Provider: "vertex" (Google Cloud credits, via gcloud ADC) or "anthropic"
+// (first-party key). Auto-detect: a Vertex project ⇒ vertex, else a key ⇒ anthropic.
+const CLAUDE_PROVIDER = (
+  process.env.CLAUDE_PROVIDER ||
+  (process.env.ANTHROPIC_VERTEX_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT ? "vertex" : "anthropic")
+).toLowerCase();
+let claude = null;
 const getAnthropic = () => {
-  if (!process.env.ANTHROPIC_API_KEY)
-    throw new Error("ANTHROPIC_API_KEY is not set — copy .env.example to .env and add your key.");
-  if (!anthropic) anthropic = new Anthropic();
-  return anthropic;
+  if (claude) return claude;
+  if (CLAUDE_PROVIDER === "vertex") {
+    const projectId = process.env.ANTHROPIC_VERTEX_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
+    const region = process.env.CLOUD_ML_REGION || process.env.CLAUDE_REGION || "global";
+    if (!projectId)
+      throw new Error("Vertex mode: set ANTHROPIC_VERTEX_PROJECT_ID (your GCP project) in .env, and run `gcloud auth application-default login`.");
+    claude = new AnthropicVertex({ projectId, region });
+  } else {
+    if (!process.env.ANTHROPIC_API_KEY)
+      throw new Error("Set ANTHROPIC_API_KEY in .env (or CLAUDE_PROVIDER=vertex for Google Cloud).");
+    claude = new Anthropic();
+  }
+  return claude;
 };
 
 const SHAPE_IDS = [

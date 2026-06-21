@@ -114,7 +114,7 @@ export const App: React.FC = () => {
       setSelectedId(titles[0]?.id ?? "");
       setStatus("AI scene ready ✓ — drag, tweak, or Render to MP4.");
     } catch (e) {
-      setStatus("AI error — is the server up (npm run server) and ANTHROPIC_API_KEY set?");
+      setStatus("AI unavailable — start the render server (npm run server) and connect Claude (Vertex quota or an API key). You can keep designing manually.");
       console.error(e);
     } finally { setAiBusy(false); }
   };
@@ -131,7 +131,7 @@ export const App: React.FC = () => {
       const j = await res.json();
       setScript(j.script ?? "");
     } catch (e) {
-      setScript("Error — is the server up (npm run server) and ANTHROPIC_API_KEY set?");
+      setScript("Script unavailable — start the render server and connect Claude (Vertex quota or an API key), then try again.");
       console.error(e);
     } finally { setScriptBusy(false); }
   };

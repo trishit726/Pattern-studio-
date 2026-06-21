@@ -1,192 +1,139 @@
-# Motion Graphics (Remotion + TypeScript)
+# Pattern Studio
 
-A clean, neutral starting point for designing animated graphics in code and
-exporting them into any video editor. The visual design is intentionally plain —
-it's a foundation to take in your own direction, not a finished style.
+**Describe your brand in a sentence — get a broadcast‑quality animated title, rendered to MP4, in seconds.**
 
-Built with [Remotion](https://www.remotion.dev) `4.0.481`.
+Pattern Studio is an AI‑assisted motion‑graphics tool. You type a one‑line description of a brand, product, or topic; Claude designs a complete title scene — headline, palette, geometric pattern, and layout; you tweak anything in a live editor; and you export a finished MP4 with one click. It puts the kind of bold, editorial title animation that normally needs a motion designer into the hands of anyone who can type a sentence.
+
+> Built for **UOE Summer of Code 2026** · Theme: **Open Innovation**
 
 ---
 
-## Quick start
+## The problem
+
+High‑end motion graphics are a bottleneck for creators, founders, and small teams. A single animated brand title can cost hundreds of dollars or hours in After Effects, and the skills don't transfer to non‑designers. Template tools look generic; pro tools are too hard.
+
+## The solution
+
+Pattern Studio collapses that to: **prompt → editable scene → MP4.**
+
+- **AI brand‑from‑a‑prompt** — Claude (Opus 4.8) acts as a brand designer: from your description it returns a full scene (title text, sub‑label, colour palette, which of 16 geometric shapes to scatter, density/proximity, and layout coordinates) as validated, structured data that drops straight into the editor.
+- **AI script‑writer** — one click writes a 45–75s voiceover script for your demo/brand video.
+- **Live editor** — drag titles, adjust density/proximity/stagger, pick shapes and brand colours, add music/SFX, toggle an alignment grid, save/load scenes as JSON. Everything the AI generates stays fully editable.
+- **One‑click MP4** — a local render server bundles the scene with [Remotion](https://www.remotion.dev) and renders a real H.264 MP4.
+- **Ready‑made films** — composed openers (`Intro`, `Assembly`) you can brand and export as polished bookends.
+
+---
+
+## Demo
+
+> 📹 Walkthrough video: _add link_ · 🖼️ Screenshots: `docs/` _(add)_
+
+A typical flow: type *“Ember — a warm, rustic specialty coffee roaster”* → **Generate Scene** → the editor fills with an on‑brand title, earthy palette, and scattered shapes → drag the title, tweak a slider → **Render** → download the MP4.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+  U[You: one-line brand prompt] --> APP[Pattern Studio editor<br/>React + Vite :5173]
+  APP -- POST /generate, /script --> SRV[Render server<br/>Express :3001]
+  SRV -- Messages API --> CLAUDE[Claude Opus 4.8<br/>Vertex AI or Anthropic API]
+  CLAUDE -- structured scene / script --> SRV
+  SRV --> APP
+  APP -- live preview --> PLAYER[Remotion Player]
+  APP -- POST /render --> SRV
+  SRV -- bundle + render --> REMOTION[Remotion renderer]
+  REMOTION --> MP4[(out/*.mp4)]
+```
+
+- **Editor** (`app/`) — React + Remotion Player; designs the scene and previews it live.
+- **Render server** (`server/render-server.mjs`) — Express backend. Holds all Claude calls **server‑side** (the API key/credentials never reach the browser), and renders MP4s with `@remotion/renderer`.
+- **Compositions** (`src/compositions/`) — the actual animated graphics, defined in React + [Remotion](https://www.remotion.dev) with Zod‑typed props.
+- **Pattern engine** (`src/lib/patterngen/`) — a deterministic, seeded generator that scatters shapes/squares/dots around the title (see [Attribution](#attribution)).
+
+---
+
+## Tech stack
+
+| Area | Tech |
+| --- | --- |
+| Video / animation | Remotion 4, React 19, TypeScript |
+| Editor | Vite 8, `@remotion/player` |
+| Backend | Node, Express 5, `@remotion/bundler` + `@remotion/renderer` |
+| AI | Claude **Opus 4.8** via **Google Vertex AI** (`@anthropic-ai/vertex-sdk`) or the first‑party **Anthropic API** (`@anthropic-ai/sdk`) |
+| Schemas / validation | Zod 4 |
+| Optional AI image | Local ComfyUI (Stable Diffusion img2img) watercolour pass |
+
+---
+
+## Getting started
 
 ```bash
-npm install        # already done if you're reading this
-npm run studio     # open the live preview at http://localhost:3000
+npm install
+cp .env.example .env      # then edit (see below)
 ```
 
-In **Remotion Studio** you can scrub the timeline, and edit every prop live in
-the right-hand panel (text, colors, etc.) thanks to the zod schemas.
-
-> If port 3000 is busy, run `npx remotion studio --port=3999`.
-
----
-
-## Project structure
-
-```
-remotion/
-├─ src/
-│  ├─ index.ts            # entry — registers the root (don't edit)
-│  ├─ Root.tsx            # ← register every composition here
-│  ├─ config.ts           # ← shared canvas: resolution + fps in ONE place
-│  ├─ lib/
-│  │  ├─ animation.ts     # enter/exit envelope + easing helpers
-│  │  └─ fonts.ts         # Google font loader (Inter by default)
-│  └─ compositions/       # one file per graphic
-│     ├─ TitleCard.tsx
-│     ├─ LowerThird.tsx
-│     ├─ KineticText.tsx
-│     └─ TransparentOverlay.tsx
-├─ public/                # fonts, images, audio (via staticFile())
-├─ out/                   # rendered output
-├─ remotion.config.ts     # Studio render defaults
-└─ package.json
-```
-
----
-
-## Changing resolution / frame rate
-
-Everything reads from [`src/config.ts`](src/config.ts). Change it once:
-
-```ts
-export const FPS = 60;          // switch to 60fps
-export const CANVAS = ULTRA_HD; // switch to 4K (FULL_HD | QUAD_HD | ULTRA_HD)
-```
-
-All four compositions pick up the new size/fps automatically. Use `seconds(n)`
-in `Root.tsx` for durations so timings stay correct at any frame rate.
-
----
-
-## The four starter compositions
-
-| id                   | What it is                | Background   |
-| -------------------- | ------------------------- | ------------ |
-| `TitleCard`          | Centered title + subtitle | Solid        |
-| `LowerThird`         | Name/role bar, lower-left | Transparent  |
-| `KineticText`        | Words spring in one-by-one| Solid        |
-| `TransparentOverlay` | Pulsing badge             | **Alpha**    |
-
-Each has a clean **enter and exit** (nothing pops or cuts mid-animation), a
-**zod schema** + **defaultProps** so you can edit it live in Studio.
-
----
-
-## Adding a new graphic
-
-1. Create `src/compositions/MyGraphic.tsx`. Export three things:
-
-   ```tsx
-   import { z } from "zod";
-   import { zColor } from "@remotion/zod-types";
-
-   export const myGraphicSchema = z.object({
-     headline: z.string(),
-     color: zColor(),
-   });
-   export type MyGraphicProps = z.infer<typeof myGraphicSchema>;
-   export const myGraphicDefaults: MyGraphicProps = {
-     headline: "Hello",
-     color: "#5b8def",
-   };
-
-   export const MyGraphic: React.FC<MyGraphicProps> = ({ headline, color }) => {
-     /* useCurrentFrame() + interpolate()/spring() — give it an enter AND exit */
-   };
-   ```
-
-2. Register it in [`src/Root.tsx`](src/Root.tsx):
-
-   ```tsx
-   <Composition
-     id="MyGraphic"                 // unique — this is the render name
-     component={MyGraphic}
-     durationInFrames={seconds(5)}
-     fps={FPS}
-     width={CANVAS.width}
-     height={CANVAS.height}
-     schema={myGraphicSchema}
-     defaultProps={myGraphicDefaults}
-   />
-   ```
-
-3. It appears in Studio and is renderable by its `id`.
-
----
-
-## Rendering / exporting
-
-Replace `<id>` with a composition id from the table above.
-
-**Standard MP4 (H.264):**
+**Connect Claude** — pick one provider in `.env`:
 
 ```bash
-npx remotion render <id> out/<id>.mp4 --codec=h264 --crf=18
+# Option A — Google Vertex AI (uses GCP credits; auth via gcloud ADC)
+CLAUDE_PROVIDER=vertex
+ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
+CLOUD_ML_REGION=global
+#   prerequisites: gcloud auth application-default login
+#                  + Vertex AI API enabled + Claude quota granted on the project
+
+# Option B — first-party Anthropic API
+CLAUDE_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-**Transparent video (ProRes 4444 — real alpha channel for editors):**
+**Run it** (two terminals):
 
 ```bash
-npx remotion render <id> out/<id>.mov --codec=prores \
-  --prores-profile=4444 --pixel-format=yuva444p10le --image-format=png
+npm run server     # render + AI backend → http://localhost:3001
+npm run app        # editor → http://localhost:5173
 ```
 
-**PNG sequence (frame-by-frame, also keeps alpha):**
+Then open the editor, type a brand description in **✨ AI Brand**, hit **Generate Scene**, edit, and **Render**.
+
+**Other commands:**
 
 ```bash
-npx remotion render <id> out/<id>/frame-%04d.png --image-format=png
+npm run studio -- --port=3999    # Remotion Studio (browse/scrub all compositions)
+npm run typecheck                # tsc --noEmit
+npx remotion render PatternTitle out/title.mp4 --codec=h264 --crf=18 --port=4001
 ```
-
-Example for the transparent badge:
-
-```bash
-npx remotion render TransparentOverlay out/TransparentOverlay.mov \
-  --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le --image-format=png
-```
-
-> Tip: add `--port=3999` to any render command if port 3000 is occupied.
 
 ---
 
-## Tips for clean motion graphics
+## How the AI works
 
-- **Stay in the title-safe area.** Keep important text within ~5% of the edges
-  (`TITLE_SAFE_PADDING` in `config.ts`) so nothing is clipped on different
-  screens or after a crop.
-- **Always animate a full enter AND exit.** Use the `enterExit()` helper in
-  `src/lib/animation.ts` so graphics never pop on or cut off abruptly.
-- **Trim leading silence on sound effects** before importing, so the hit lands
-  exactly on the frame where you place the `<Sequence from={...}>`.
-- **CSS transitions/animations don't render** — animate with `useCurrentFrame()`
-  + `interpolate()` / `spring()` only.
-- **Transparency:** a composition is transparent only if its root element sets
-  **no** background color (see `TransparentOverlay.tsx`).
+`POST /generate` sends your prompt to Claude with a system prompt that frames it as a brand/motion designer and specifies an exact JSON shape. The server then **validates and clamps every field** (coordinates to 0–1, sizes and slider ranges to their bounds, shape ids to the known set, colours to valid hex) before returning it — the model's output is never trusted blindly. The result maps 1:1 onto the `PatternTitle` composition's Zod schema, so it renders immediately and stays editable.
+
+`POST /script` returns a short, structured voiceover script (hook → problem → solution → CTA) for the demo video.
+
+Both run on whichever provider `.env` selects — switching between Vertex and the Anthropic API is a one‑line change.
 
 ---
 
-## Fonts & sound effects
+## Roadmap
 
-**Google font** — loaded once in [`src/lib/fonts.ts`](src/lib/fonts.ts) via
-`@remotion/google-fonts`. Swap `Inter` for any family:
+- Social export presets (9:16 Reels/Shorts, 1:1) and template library
+- Audio‑reactive patterns (beat‑synced shape/scale animation)
+- Brand‑kit memory (logo, fonts, palette reused across scenes)
+- Hosted render queue for scalability beyond a single machine
 
-```ts
-import { loadFont } from "@remotion/google-fonts/Montserrat";
-```
+---
 
-**Sound effect** — drop a file in `public/sfx/`, then time it with a `Sequence`:
+## Attribution
 
-```tsx
-import { AbsoluteFill, Sequence, staticFile } from "remotion";
-import { Audio } from "@remotion/media";
+This project stands on open work — full details in [`NOTICE.md`](NOTICE.md):
 
-<AbsoluteFill>
-  <MyGraphic {...myGraphicDefaults} />
-  <Sequence from={seconds(0.2)}>
-    <Audio src={staticFile("sfx/whoosh.mp3")} />
-  </Sequence>
-</AbsoluteFill>;
-```
+- The pattern‑placement engine in `src/lib/patterngen/` is **ported and adapted from [`patterngen-oss`](https://github.com/halfof8/patterngen) by halfof8 (MIT)**. Pattern Studio re‑implements it to be Remotion‑native and deterministic, and builds a new product around it (the live editor, the MP4 render pipeline, and the AI scene/script generation).
+- [Remotion](https://www.remotion.dev) (video framework — see its own license), Anthropic Claude (AI), Google Fonts **Anton** & **Shippori Mincho** (OFL), and **CC0** music/SFX.
 
-(There's a copy-paste-ready version commented at the bottom of `Root.tsx`.)
+## License
+
+[MIT](LICENSE) © 2026 Trishit Bodkhe
