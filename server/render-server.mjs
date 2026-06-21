@@ -8,6 +8,7 @@ import express from "express";
 import cors from "cors";
 import Anthropic from "@anthropic-ai/sdk";
 import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
+import { GoogleGenAI } from "@google/genai";
 import path from "node:path";
 import fs from "node:fs";
 import { randomUUID } from "node:crypto";
@@ -107,17 +108,24 @@ async function paintWithComfy(srcPath, { prompt, denoise, seed, id }) {
 // Default: first-party Anthropic API (set ANTHROPIC_API_KEY in .env).
 // To use Google Cloud / Vertex credits instead, swap `new Anthropic()` for the
 // AnthropicVertex client from `@anthropic-ai/vertex-sdk` (same call shape).
-const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-4-8";
-// Provider: "vertex" (Google Cloud credits, via gcloud ADC) or "anthropic"
-// (first-party key). Auto-detect: a Vertex project ⇒ vertex, else a key ⇒ anthropic.
-const CLAUDE_PROVIDER = (
+// AI provider: "gemini" (Google AI Studio key), "vertex" (Claude on GCP via ADC),
+// or "anthropic" (first-party Claude key). Auto-detect from whatever creds exist.
+const AI_PROVIDER = (
   process.env.CLAUDE_PROVIDER ||
-  (process.env.ANTHROPIC_VERTEX_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT ? "vertex" : "anthropic")
+  (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
+    ? "gemini"
+    : process.env.ANTHROPIC_VERTEX_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT
+      ? "vertex"
+      : "anthropic")
 ).toLowerCase();
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-4-8";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+console.log(`AI provider: ${AI_PROVIDER} (${AI_PROVIDER === "gemini" ? GEMINI_MODEL : CLAUDE_MODEL})`);
+
 let claude = null;
 const getAnthropic = () => {
   if (claude) return claude;
-  if (CLAUDE_PROVIDER === "vertex") {
+  if (AI_PROVIDER === "vertex") {
     const projectId = process.env.ANTHROPIC_VERTEX_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
     const region = process.env.CLOUD_ML_REGION || process.env.CLAUDE_REGION || "global";
     if (!projectId)
@@ -125,11 +133,44 @@ const getAnthropic = () => {
     claude = new AnthropicVertex({ projectId, region });
   } else {
     if (!process.env.ANTHROPIC_API_KEY)
-      throw new Error("Set ANTHROPIC_API_KEY in .env (or CLAUDE_PROVIDER=vertex for Google Cloud).");
+      throw new Error("Set ANTHROPIC_API_KEY in .env (or CLAUDE_PROVIDER=gemini / vertex).");
     claude = new Anthropic();
   }
   return claude;
 };
+
+let gemini = null;
+const getGemini = () => {
+  if (gemini) return gemini;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey) throw new Error("Set GEMINI_API_KEY in .env (free key from aistudio.google.com).");
+  gemini = new GoogleGenAI({ apiKey });
+  return gemini;
+};
+
+// Unified text generation across providers — both AI features call this.
+async function generateText({ system, user, maxTokens, json = false }) {
+  if (AI_PROVIDER === "gemini") {
+    const ai = getGemini();
+    const config = {
+      systemInstruction: system,
+      maxOutputTokens: maxTokens,
+      temperature: 0.9,
+      thinkingConfig: { thinkingBudget: 0 }, // skip thinking — these are quick generation tasks
+    };
+    if (json) config.responseMimeType = "application/json";
+    const r = await ai.models.generateContent({ model: GEMINI_MODEL, contents: user, config });
+    return r.text ?? "";
+  }
+  const client = getAnthropic();
+  const msg = await client.messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: maxTokens,
+    system,
+    messages: [{ role: "user", content: user }],
+  });
+  return (msg.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n");
+}
 
 const SHAPE_IDS = [
   "arrowUp", "capsuleDiag", "capsuleH", "plug", "hBars", "barsII", "circle",
@@ -256,14 +297,12 @@ app.post("/generate", async (req, res) => {
   const { prompt } = req.body || {};
   if (!prompt || !String(prompt).trim()) return res.status(400).send("Missing 'prompt'.");
   try {
-    const client = getAnthropic();
-    const msg = await client.messages.create({
-      model: CLAUDE_MODEL,
-      max_tokens: 2000,
+    const text = await generateText({
       system: SYSTEM_GENERATE,
-      messages: [{ role: "user", content: `Brand / topic: ${String(prompt).trim()}` }],
+      user: `Brand / topic: ${String(prompt).trim()}`,
+      maxTokens: 2000,
+      json: true,
     });
-    const text = (msg.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n");
     const raw = parseJson(text);
 
     // Validate + clamp into the PatternTitle prop ranges (never trust the model blindly).
@@ -306,14 +345,11 @@ app.post("/script", async (req, res) => {
   const { prompt } = req.body || {};
   if (!prompt || !String(prompt).trim()) return res.status(400).send("Missing 'prompt'.");
   try {
-    const client = getAnthropic();
-    const msg = await client.messages.create({
-      model: CLAUDE_MODEL,
-      max_tokens: 1200,
+    const script = (await generateText({
       system: SYSTEM_SCRIPT,
-      messages: [{ role: "user", content: `Brand / topic: ${String(prompt).trim()}` }],
-    });
-    const script = (msg.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
+      user: `Brand / topic: ${String(prompt).trim()}`,
+      maxTokens: 1200,
+    })).trim();
     res.json({ script });
   } catch (e) {
     console.error(e);

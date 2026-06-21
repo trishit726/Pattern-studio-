@@ -104,7 +104,8 @@ export const PatternField: React.FC<{
   begin?: number;
   stagger?: number; // 0 = all reveal together, 5 = maximally spread
   enabledAnims?: AnimType[];
-}> = ({ titles, colors, density, proximity, seed, begin = 0, stagger = 3, enabledAnims = ANIM_TYPES }) => {
+  amp?: number; // 0..1 audio energy — pulses shapes/dots when audio-reactive
+}> = ({ titles, colors, density, proximity, seed, begin = 0, stagger = 3, enabledAnims = ANIM_TYPES, amp = 0 }) => {
   const SPREAD = 6 + stagger * 10; // frames over which elements stagger in
   const frame = useCurrentFrame();
   const place = generatePlacement(titles, colors, density, proximity, seed, enabledAnims);
@@ -151,6 +152,8 @@ export const PatternField: React.FC<{
               background: t.colors.bg,
               clipPath: clipFor(t.clipSide, p),
               WebkitClipPath: clipFor(t.clipSide, p),
+              transform: amp ? `scale(${1 + amp * 0.32})` : undefined,
+              transformOrigin: "center",
             }}
           >
             <Shape anim={t.anim} fg={t.colors.fg} />
@@ -174,7 +177,8 @@ export const PatternField: React.FC<{
               height: 9,
               borderRadius: 3,
               background: d.color,
-              opacity: appear * (0.4 + 0.6 * blink),
+              opacity: Math.min(1, appear * (0.4 + 0.6 * blink) * (1 + amp * 0.9)),
+              transform: amp ? `scale(${1 + amp * 0.7})` : undefined,
             }}
           />
         );

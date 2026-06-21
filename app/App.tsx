@@ -321,7 +321,9 @@ export const App: React.FC = () => {
           <div style={{ display: "flex", gap: 18 }}>
             <button className={props.music ? "link-btn accent" : "link-btn"} onClick={() => set("music", props.music ? "" : MUSIC)}>Music</button>
             <button className={props.sfx ? "link-btn accent" : "link-btn"} onClick={() => set("sfx", !props.sfx)}>SFX</button>
+            <button className={props.audioReactive ? "link-btn accent" : "link-btn"} onClick={() => set("audioReactive", !props.audioReactive)}>Reactive</button>
           </div>
+          <div style={{ ...S.status, marginTop: 8 }}>{props.audioReactive ? (props.music ? "Shapes & dots pulse to the music." : "Turn on Music to drive the reactive pulse.") : "Reactive = beat-synced shape & dot pulse."}</div>
         </Section>
         </>
         ) : comp === "Assembly" ? (

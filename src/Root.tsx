@@ -88,6 +88,7 @@ export const RemotionRoot: React.FC = () => {
           showGrid: false,
           music: "",
           sfx: false,
+          audioReactive: false,
         }}
       />
 

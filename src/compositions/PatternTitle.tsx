@@ -10,6 +10,7 @@ import { zColor } from "@remotion/zod-types";
 import { loadFont as loadAnton } from "@remotion/google-fonts/Anton";
 import { loadFont as loadJP } from "@remotion/google-fonts/ShipporiMincho";
 import { PatternField } from "../lib/patterngen/PatternField";
+import { useAudioData, visualizeAudio } from "@remotion/media-utils";
 import { GrainOverlay, PaintedImage } from "../lib/textures";
 import type { TitleRect, AnimType } from "../lib/patterngen/engine";
 
@@ -42,6 +43,7 @@ export const patternTitleSchema = z.object({
   showGrid: z.boolean(),
   music: z.string().optional(), // public/ path for a lo-fi bed, e.g. "music/lofi.mp3"
   sfx: z.boolean().optional(), // play a slap SFX on each title reveal
+  audioReactive: z.boolean().optional(), // pulse the pattern to the music's energy
 });
 export type PatternTitleProps = z.infer<typeof patternTitleSchema>;
 
@@ -63,6 +65,7 @@ export const patternTitleDefaults: PatternTitleProps = {
   showGrid: false,
   music: "",
   sfx: false,
+  audioReactive: false,
 };
 
 // Approximate the bounding box of a title so the engine keeps patterns clear of it.
@@ -117,10 +120,20 @@ const TitleBlock: React.FC<{ t: TitleItem; accent: string; clip: string }> = ({ 
 };
 
 export const PatternTitle: React.FC<PatternTitleProps> = ({
-  titles, seed, density, proximity, accent, bgColor, bgImage, stagger, shapes, paint, colors, showGrid, music, sfx,
+  titles, seed, density, proximity, accent, bgColor, bgImage, stagger, shapes, paint, colors, showGrid, music, sfx, audioReactive,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const fieldProps = {
+    titles: titles.map(rectOf),
+    colors: colors.length ? colors : [accent],
+    density,
+    proximity,
+    seed,
+    begin: 4,
+    stagger,
+    enabledAnims: shapes as AnimType[],
+  };
 
   return (
     <AbsoluteFill style={{ backgroundColor: bgColor, overflow: "hidden" }}>
@@ -143,16 +156,11 @@ export const PatternTitle: React.FC<PatternTitleProps> = ({
         <AbsoluteFill style={{ pointerEvents: "none", opacity: 0.07, backgroundImage: "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
       ) : null}
 
-      <PatternField
-        titles={titles.map(rectOf)}
-        colors={colors.length ? colors : [accent]}
-        density={density}
-        proximity={proximity}
-        seed={seed}
-        begin={4}
-        stagger={stagger}
-        enabledAnims={shapes as AnimType[]}
-      />
+      {music && audioReactive ? (
+        <ReactiveField music={music} {...fieldProps} />
+      ) : (
+        <PatternField {...fieldProps} />
+      )}
 
       <AbsoluteFill>
         {titles.map((t, i) => {
@@ -164,4 +172,17 @@ export const PatternTitle: React.FC<PatternTitleProps> = ({
       <GrainOverlay name="pattern" intensity={0.1} vignette dark />
     </AbsoluteFill>
   );
+};
+
+// Audio-reactive wrapper: pulses the pattern with the music's low-frequency energy.
+const ReactiveField: React.FC<React.ComponentProps<typeof PatternField> & { music: string }> = ({ music, ...rest }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const audioData = useAudioData(resolveSrc(music));
+  let amp = 0;
+  if (audioData) {
+    const bins = visualizeAudio({ fps, frame, audioData, numberOfSamples: 16, optimizeFor: "speed" });
+    amp = Math.min(1, (((bins[0] ?? 0) + (bins[1] ?? 0) + (bins[2] ?? 0)) / 3) * 2.4);
+  }
+  return <PatternField {...rest} amp={amp} />;
 };
