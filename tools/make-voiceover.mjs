@@ -1,5 +1,6 @@
-// Generates the demo voiceover via free Microsoft Edge neural TTS (no key/quota)
-// → public/music/voiceover.mp3
+// Generates voiceovers via free Microsoft Edge neural TTS (no key/quota).
+//   node tools/make-voiceover.mjs promo   → public/music/voiceover.mp3
+//   node tools/make-voiceover.mjs arch    → public/music/architecture-vo.mp3
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,22 +9,40 @@ import ffprobe from "ffprobe-static";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../..");
-const out = path.join(ROOT, "public", "music", "voiceover.mp3");
 
-const SCRIPT = `Great brand titles used to take a designer, and a week. Now, they take a sentence.
+const SCRIPTS = {
+  promo: {
+    out: "voiceover.mp3",
+    text: `Great brand titles used to take a designer, and a week. Now, they take a sentence.
 This is Pattern Studio.
 Describe your brand, and A.I. designs the whole title. The headline. The colours. The motion.
 And every piece stays yours to control.
 Pick a style. Let the shapes gather around your words... or flood the screen in colour.
 Sync it to the beat. Then render, and your brand is in motion.
-Pattern Studio. Open source, and made for everyone.`;
+Pattern Studio. Open source, and made for everyone.`,
+  },
+  arch: {
+    out: "architecture-vo.mp3",
+    text: `Here's how Pattern Studio works under the hood.
+You describe your brand, in one line.
+The editor — a React app — sends it to a local render server.
+The server calls Gemini, which designs a complete scene, and returns it as structured data.
+That scene drops straight into a live Remotion preview, where you can edit anything.
+When you're happy, one click sends it back — and the server renders your scene with Remotion, into a finished M P 4.
+From a sentence, to a video. Editor, server, A.I., and Remotion.`,
+  },
+};
 
+const which = process.argv[2] || "promo";
+const sel = SCRIPTS[which];
+if (!sel) { console.error("Unknown script:", which, "— use 'promo' or 'arch'"); process.exit(1); }
+
+const out = path.join(ROOT, "public", "music", sel.out);
 const VOICE = "en-US-GuyNeural";
 
 const tts = new MsEdgeTTS();
 await tts.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
-
-let result = tts.toStream(SCRIPT);
+let result = tts.toStream(sel.text);
 if (result && typeof result.then === "function") result = await result;
 const audioStream = result.audioStream ?? result;
 

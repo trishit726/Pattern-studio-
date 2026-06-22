@@ -27,7 +27,8 @@ Pattern Studio collapses that to: **prompt → editable scene → MP4.**
 
 ## Demo
 
-> 📹 Narrated promo film: [`public/examples/pattern-studio-promo.mp4`](public/examples/pattern-studio-promo.mp4) — ~37s, made entirely with the tool, neural voiceover · 🖼️ Screenshots: `docs/` _(add)_
+> 📹 Narrated promo film: [`public/examples/pattern-studio-promo.mp4`](public/examples/pattern-studio-promo.mp4) — ~37s, made entirely with the tool, neural voiceover.
+> 🏗️ Architecture explainer: [`public/examples/pattern-studio-architecture.mp4`](public/examples/pattern-studio-architecture.mp4) — ~34s, narrated walkthrough of how the system works, in the same editorial style · 🖼️ Screenshots: `docs/` _(add)_
 
 A typical flow: type *“Ember — a warm, rustic specialty coffee roaster”* → **Generate Scene** → the editor fills with an on‑brand title, earthy palette, and scattered shapes → drag the title, tweak a slider → **Render** → download the MP4.
 
