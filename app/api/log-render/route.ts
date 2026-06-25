@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { logRenderEvent } from "@/lib/server/db"
+import { logRenderEvent } from "@/app/lib/db"
 
 export const runtime = "nodejs"
 

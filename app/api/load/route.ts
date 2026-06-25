@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { GetCommand } from "@aws-sdk/lib-dynamodb"
-import { db, TABLE_NAME } from "@/lib/server/db"
+import { db, TABLE_NAME } from "@/app/lib/db"
 
 export const runtime = "nodejs"
 
