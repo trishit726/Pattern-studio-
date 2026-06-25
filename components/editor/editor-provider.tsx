@@ -87,8 +87,6 @@ interface EditorContextValue {
   addColor: () => void
   // background
   onImage: (f: File | null) => void
-  aiPaint: boolean
-  setAiPaint: React.Dispatch<React.SetStateAction<boolean>>
   // timeline
   scenes: TimelineScene[]
   current: number
@@ -178,7 +176,6 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [duration, setDuration] = useState(150)
   const [selectedId, setSelectedId] = useState(props.titles[0]?.id ?? "")
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [aiPaint, setAiPaint] = useState(false)
   const [rendering, setRendering] = useState(false)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [status, setStatus] = useState("")
@@ -572,7 +569,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (comp === "Assembly") {
         body = { composition: "Assembly", props: assemblyProps }
       } else if (comp === "Intro") {
-        body = { composition: "Intro", props: introProps, aiPaint }
+        body = { composition: "Intro", props: introProps }
       } else if (comp === "Timeline") {
         const clean = liveScenes().map((s) => ({
           ...s,
@@ -591,7 +588,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           ...props,
           bgImage: imageData || props.bgImage.startsWith("blob:") ? "" : props.bgImage,
         }
-        body = { composition: "PatternTitle", props: sendProps, imageData, imageExt, duration, aiPaint }
+        body = { composition: "PatternTitle", props: sendProps, imageData, imageExt, duration }
       }
       body.ratio = ratio
       const res = await fetch(`${SERVER}/render`, {
@@ -687,8 +684,6 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     removeColor,
     addColor,
     onImage,
-    aiPaint,
-    setAiPaint,
     scenes,
     current,
     previewMode,

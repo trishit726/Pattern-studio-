@@ -86,7 +86,6 @@ flowchart LR
 | AI | **Google Gemini** (`gemini-2.5-flash`) via Google AI Studio (`@google/genai`); a provider‑agnostic layer also runs Claude on **Vertex AI** / the **Anthropic API** |
 | Schemas / validation | Zod 4 |
 | Demo videos | Rendered in Remotion; free **Edge neural TTS** voiceovers; **ffmpeg** for aspect‑ratio crops |
-| Optional AI image | Local ComfyUI (Stable Diffusion img2img) watercolour pass |
 
 ---
 

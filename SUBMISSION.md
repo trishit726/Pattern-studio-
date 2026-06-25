@@ -50,7 +50,7 @@ Social export presets (9:16, 1:1), audio‑reactive patterns, brand‑kit memory
 ---
 
 ## Technologies Used (comma‑separated for the form)
-React, TypeScript, Remotion, Vite, Node.js, Express, Google Gemini (Google AI Studio), provider-agnostic AI layer (also Claude via Vertex AI / Anthropic API), Zod, FFmpeg, ComfyUI / Stable Diffusion (optional), HTML5 Canvas/SVG
+React, TypeScript, Remotion, Vite, Node.js, Express, Google Gemini (Google AI Studio), provider-agnostic AI layer (also Claude via Vertex AI / Anthropic API), Zod, FFmpeg, HTML5 Canvas/SVG
 
 ## Required submission checklist
 - [ ] Project name: **Pattern Studio**

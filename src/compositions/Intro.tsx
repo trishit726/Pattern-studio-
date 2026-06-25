@@ -8,7 +8,7 @@
 //   5. Runtime card: red "~5 MIN" bar over a painterly burst + X pattern motif.
 //
 // Fully parameterized → drives the web app. Drop a real photo into `bgImage`
-// (or let the ComfyUI img2img path paint one) for the hero shot.
+// for the hero shot.
 import React from "react";
 import {
   AbsoluteFill,
@@ -36,7 +36,7 @@ const { fontFamily: JP } = loadJP("normal", { weights: ["500"], subsets: ["latin
 export const introSchema = z.object({
   bgImage: z.string(), // public path / url for the painterly hero photo (entrance)
   bgImage2: z.string(), // second, deeper photo — the camera dollies forward into it
-  paint: z.number().min(0).max(120), // SVG watercolor strength (set 0 if pre-painted by ComfyUI)
+  paint: z.number().min(0).max(120), // SVG watercolor strength (0 = off)
   title: z.string(),
   byline: z.string(),
   jp: z.string(),

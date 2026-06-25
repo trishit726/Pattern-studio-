@@ -510,12 +510,6 @@ function PatternControls() {
             <Button variant="ghost" size="sm" className="w-fit" onClick={() => e.onImage(null)}>
               Clear photo
             </Button>
-            <Chip active={e.aiPaint} onClick={() => e.setAiPaint(!e.aiPaint)}>
-              AI Painterly
-            </Chip>
-            <p className="text-[11px] text-muted-foreground">
-              {e.aiPaint ? "Render repaints the photo via local ComfyUI (port 8188)." : "Off — photo used as-is."}
-            </p>
           </div>
         ) : null}
       </SectionCard>
@@ -662,9 +656,6 @@ function IntroControls() {
         <Field label="Photo 2">
           <Input value={p.bgImage2} onChange={(ev) => e.setIntroProps((s) => ({ ...s, bgImage2: ev.target.value }))} placeholder="blank = single photo" />
         </Field>
-        <Chip active={e.aiPaint} onClick={() => e.setAiPaint(!e.aiPaint)}>
-          AI Painterly
-        </Chip>
       </SectionCard>
 
       <SectionCard title="Audio">
