@@ -21,6 +21,7 @@ import { Promo, promoSchema, promoDefaults, PROMO_DURATION } from "./composition
 import { Architecture, architectureSchema, architectureDefaults, ARCH_DURATION } from "./compositions/Architecture";
 import { ProblemStatement, problemSchema, problemDefaults, PROBLEM_DURATION } from "./compositions/ProblemStatement";
 import { Examples, examplesSchema, examplesDefaults, EXAMPLES_DURATION } from "./compositions/Examples";
+import { Timeline, timelineSchema, timelineDefaults, calculateTimelineMetadata } from "./compositions/Timeline";
 import { NameReveal, nameRevealSchema } from "./compositions/NameReveal";
 import { StyledNameReveal, styledNameRevealSchema } from "./compositions/StyledNameReveal";
 import { DesignerInJapan, designerInJapanSchema } from "./compositions/DesignerInJapan";
@@ -32,6 +33,10 @@ import { TitleCard, titleCardSchema } from "./compositions/TitleCard";
 import { LowerThird, lowerThirdSchema } from "./compositions/LowerThird";
 import { KineticText, kineticTextSchema } from "./compositions/KineticText";
 import { TransparentOverlay, transparentOverlaySchema } from "./compositions/TransparentOverlay";
+import { FourCardsGrid, fourCardsSchema, fourCardsDefaults } from "./compositions/FourCardsGrid";
+import { SoundShowcase, soundShowcaseSchema } from "./compositions/SoundShowcase";
+
+import { SolutionArchitecture, solutionArchitectureSchema, SA_DURATION } from "./compositions/SolutionArchitecture";
 
 // Default props are written as inline literals (not imported variables) so that
 // Remotion Studio can save your live edits back into this file. The exported
@@ -40,6 +45,17 @@ import { TransparentOverlay, transparentOverlaySchema } from "./compositions/Tra
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="SolutionArchitecture"
+        component={SolutionArchitecture}
+        durationInFrames={SA_DURATION}
+        fps={FPS}
+        width={CANVAS.width}
+        height={CANVAS.height}
+        schema={solutionArchitectureSchema}
+        defaultProps={{}}
+      />
+
       <Composition
         id="Assembly"
         component={Assembly}
@@ -100,6 +116,18 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
+        id="Timeline"
+        component={Timeline}
+        durationInFrames={seconds(8)}
+        calculateMetadata={calculateTimelineMetadata}
+        fps={FPS}
+        width={CANVAS.width}
+        height={CANVAS.height}
+        schema={timelineSchema}
+        defaultProps={timelineDefaults}
+      />
+
+      <Composition
         id="Intro"
         component={Intro}
         durationInFrames={INTRO_DURATION}
@@ -124,8 +152,8 @@ export const RemotionRoot: React.FC = () => {
             { id: "t2", kind: "label" as const, text: "MOTION, FROM A PROMPT", x: 0.36, y: 0.61, size: 30 },
           ],
           seed: 7,
-          density: 11,
-          proximity: 12,
+          density: 10,
+          proximity: 2,
           accent: "#f74026",
           bgColor: "#2b2b2b",
           bgImage: "",
@@ -133,6 +161,7 @@ export const RemotionRoot: React.FC = () => {
           shapes: ["arrowUp", "capsuleDiag", "capsuleH", "plug", "hBars", "barsII", "circle", "target", "squares4", "xCross", "dotGrid", "dots3", "dice5", "dice2", "nested", "stripes"],
           paint: 50,
           colors: ["#6fa5a9", "#93ab5a", "#cf9f4a", "#e0573a", "#000000", "#ffffff"],
+          scatter: true,
           showGrid: false,
           music: "",
           sfx: false,
@@ -144,6 +173,11 @@ export const RemotionRoot: React.FC = () => {
           floodShapes: 5,
           floodPersist: true,
           floodSolid: false,
+          cameraMove: "none",
+          cameraDir: "right",
+          cameraAmount: 5,
+          titleAnim: "wipe",
+          underline: false,
         }}
       />
 
@@ -177,6 +211,17 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
+        id="FourCardsGrid"
+        component={FourCardsGrid}
+        durationInFrames={seconds(8)}
+        fps={FPS}
+        width={CANVAS.width}
+        height={CANVAS.height}
+        schema={fourCardsSchema}
+        defaultProps={fourCardsDefaults}
+      />
+
+      <Composition
         id="Backdrops"
         component={Backdrops}
         durationInFrames={seconds(4)}
@@ -207,6 +252,21 @@ export const RemotionRoot: React.FC = () => {
         height={CANVAS.height}
         schema={paintedDemoSchema}
         defaultProps={{ src: "images/scene.jpg", strength: 75 }}
+      />
+
+      <Composition
+        id="SoundShowcase"
+        component={SoundShowcase}
+        durationInFrames={seconds(6)}
+        fps={FPS}
+        width={CANVAS.width}
+        height={CANVAS.height}
+        schema={soundShowcaseSchema}
+        defaultProps={{
+          bgColor: "#dbd7c7",
+          titleColor: "#111111",
+          grain: 0.1,
+        }}
       />
 
       <Composition

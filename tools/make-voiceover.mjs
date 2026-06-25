@@ -31,6 +31,15 @@ That scene drops straight into a live Remotion preview, where you can edit anyth
 When you're happy, one click sends it back — and the server renders your scene with Remotion, into a finished M P 4.
 From a sentence, to a video. Editor, server, A.I., and Remotion.`,
   },
+  tutorial: {
+    out: "tutorial-vo.mp3",
+    text: `Welcome to Pattern Studio. Let me walk you through how it works, step by step.
+We start by adding our title cards. I can drop in a block title for the headline, a sub label underneath it, or a Japanese accent line. Each one I can drag anywhere on the canvas to place it, retype the text, and scale it up or down with the size slider. And every card gets its own colour box, so my titles and labels can stand apart from each other.
+Next is Density. This controls how many shapes gather around your words, and how tightly they pack together. Slide it up for a busy, energetic field... or pull it down for something clean and minimal. Just below it, Proximity and Stagger fine-tune the spacing between the shapes, and the timing of how they appear. And any time I want a completely fresh layout, I can hit Generate to reshuffle the whole pattern in an instant.
+Now for my favourite part — Flood. Flood fills the whole screen with a grid of colour behind your title, and there are several ways it can fill in. Random scatters the tiles across the screen. Sweep moves through on a diagonal. Radial opens out from the centre. And rows, columns, and edges fill in exactly the way they sound. I can speed the fill up or slow it down, change the tile size, and flood in a single solid colour or my full set. I can also choose whether the flood stays on screen... or clears away as the title settles into place.
+Finally, sound. I can drop in a music bed, turn on sound-effect hits, and switch on Reactive — so the shapes and the dots pulse right along to the beat of the music.
+And that's it. Pick your colours, hit render, and you've got a finished, animated title card — all from one simple editor.`,
+  },
   problem: {
     out: "problem-vo.mp3",
     text: `Every brand needs motion. A title that moves. An intro that grabs attention. A logo that comes alive.

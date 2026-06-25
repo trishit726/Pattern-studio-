@@ -1,0 +1,213 @@
+<!-- hyperframes-registry-item: logo-outro -->
+<!doctype html>
+<html
+  lang="en"
+  data-composition-variables='[
+  {"id":"tagline","type":"string","label":"Tagline","default":"Pattern Studio"},
+  {"id":"url","type":"string","label":"URL","default":"pattern.studio"}
+]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Logo Outro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=block"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  </head>
+  <body>
+    <template>
+      <style>
+        #logo-outro .canvas {
+          width: 1920px;
+          height: 1080px;
+          background: #111111; /* Changed to match our Ink Black background */
+          position: relative;
+          overflow: hidden;
+          font-family: "Inter", sans-serif;
+        }
+
+        #logo-outro .logo-container {
+          position: absolute;
+          left: 860px; /* Center horizontally: 1920/2 - 200/2 = 860px */
+          top: 360px;  /* Slightly shifted up for visual balance */
+          width: 200px;
+          height: 200px;
+          z-index: 2;
+        }
+
+        #logo-outro .logo-piece {
+          transform-origin: center center;
+        }
+
+        #logo-outro .draw-path {
+          stroke-dasharray: 400;
+          stroke-dashoffset: 400;
+        }
+
+        #logo-outro-glow {
+          position: absolute;
+          left: 760px; /* Center: 1920/2 - 400/2 = 760px */
+          top: 260px;
+          width: 400px;
+          height: 400px;
+          background: radial-gradient(circle, rgba(247, 64, 38, 0.25) 0%, rgba(17, 17, 17, 0) 70%); /* Signature red glow */
+          border-radius: 50%;
+          opacity: 0;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        #logo-outro .text-container {
+          position: absolute;
+          top: 720px;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          z-index: 3;
+        }
+
+        #logo-outro-tagline {
+          font-size: 44px;
+          font-weight: 500;
+          color: white;
+          opacity: 0;
+          margin-bottom: 32px;
+          text-align: center;
+        }
+
+        #logo-outro-url-pill {
+          background: #1a1a1f;
+          border: 1px solid #2c2c2c;
+          border-radius: 100px;
+          padding: 8px 24px;
+          opacity: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        #logo-outro .url-text {
+          font-size: 18px;
+          color: #888888;
+          letter-spacing: 0.5px;
+        }
+      </style>
+
+      <div
+        id="logo-outro"
+        data-composition-id="logo-outro"
+        data-width="1920"
+        data-height="1080"
+        data-start="0"
+        data-duration="6"
+        data-layout-allow-overflow="true"
+      >
+        <div class="canvas" data-layout-allow-overflow="true">
+          <!-- Glow effect behind the logo -->
+          <div id="logo-outro-glow"></div>
+
+          <!-- Logo Container -->
+          <div class="logo-container" data-layout-allow-overflow="true">
+            <svg viewBox="0 0 200 200" width="200" height="200" class="logo-svg">
+              <!-- Glow/Pulse background circle -->
+              <circle id="logo-outro-bg" class="logo-piece" cx="100" cy="100" r="80" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="4" stroke-dasharray="8,8" />
+              
+              <!-- Outer concentric decorative arcs -->
+              <path id="logo-outro-arc1" class="logo-piece draw-path" d="M 20,100 A 80,80 0 0,1 180,100" fill="none" stroke="#EFA59F" stroke-width="3" stroke-dasharray="8,8" />
+              <path id="logo-outro-arc2" class="logo-piece draw-path" d="M 180,100 A 80,80 0 0,1 20,100" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="4,4" />
+              
+              <!-- The primary solid brand shape (red circle offset) -->
+              <circle id="logo-outro-red-dot" class="logo-piece" cx="75" cy="100" r="45" fill="#F74026" />
+              
+              <!-- Stylized white 'P' shape overlay -->
+              <path id="logo-outro-p-vertical" class="logo-piece draw-path" d="M 115,50 L 115,150" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" />
+              <path id="logo-outro-p-loop" class="logo-piece draw-path" d="M 115,50 A 25,25 0 0,1 115,100" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" />
+            </svg>
+          </div>
+
+          <div class="text-container" data-layout-allow-overflow="true">
+            <div id="logo-outro-tagline">Pattern Studio</div>
+            <div id="logo-outro-url-pill">
+              <span class="url-text">pattern.studio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          // Read the variables if present
+          const { tagline: taglineText, url: urlText } = window.__hyperframes.getVariables();
+          if (taglineText) {
+            document.querySelector('#logo-outro-tagline').textContent = taglineText;
+          }
+          if (urlText) {
+            document.querySelector('#logo-outro .url-text').textContent = urlText;
+          }
+
+          const tl = gsap.timeline({ paused: true });
+
+          const logoBg = '#logo-outro-bg';
+          const logoArc1 = '#logo-outro-arc1';
+          const logoArc2 = '#logo-outro-arc2';
+          const logoRedDot = '#logo-outro-red-dot';
+          const logoPVertical = '#logo-outro-p-vertical';
+          const logoPLoop = '#logo-outro-p-loop';
+          const logoGlow = '#logo-outro-glow';
+          const tagline = '#logo-outro-tagline';
+          const urlPill = '#logo-outro-url-pill';
+
+          // 1. Draw outer dashed circles and arcs
+          tl.fromTo(logoBg, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2, ease: "power3.out", overwrite: "auto" }, 0);
+          tl.fromTo(logoArc1, { strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 1.2, ease: "power1.inOut", overwrite: "auto" }, 0.1);
+          tl.fromTo(logoArc2, { strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 1.2, ease: "power1.inOut", overwrite: "auto" }, 0.2);
+
+          // 2. Pop the brand red dot in from the left/center
+          tl.fromTo(logoRedDot, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.0, ease: "back.out(1.5)", overwrite: "auto" }, 0.3);
+
+          // 3. Draw the white 'P' vertical stem and loop
+          tl.fromTo(logoPVertical, { strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 0.9, ease: "power2.out", overwrite: "auto" }, 0.5);
+          tl.fromTo(logoPLoop, { strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 0.7, ease: "power2.out", overwrite: "auto" }, 0.8);
+
+          // 4. Glow bloom
+          tl.fromTo(
+            logoGlow,
+            { opacity: 0, scale: 0.5 },
+            { opacity: 1, scale: 1.2, duration: 0.4, ease: "power2.out", overwrite: "auto" },
+            0.8
+          );
+          tl.to(
+            logoGlow,
+            { opacity: 0, scale: 1.8, duration: 1.2, ease: "power2.out", overwrite: "auto" },
+            1.2
+          );
+
+          // 5. Tagline and URL pill fade in
+          const textStartTime = 1.8;
+          tl.fromTo(
+            tagline,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 1, ease: "power3.out", overwrite: "auto" },
+            textStartTime
+          );
+
+          tl.fromTo(
+            urlPill,
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", overwrite: "auto" },
+            textStartTime + 0.4
+          );
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["logo-outro"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

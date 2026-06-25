@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        color: #111111;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Sized root as required by the technical contract */
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #111111; /* Dark background */
+      }
+
+      .scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+
+      /* Scene 1: Minimalist Japanese Line-Art */
+      #scene1 {
+        z-index: 1;
+        background: #111111;
+      }
+
+      /* Massive red curved shape (circle) on the left/center */
+      .red-circle {
+        position: absolute;
+        width: 1450px;
+        height: 1450px;
+        background: #F74026; /* Signature Red */
+        border-radius: 50%;
+        left: -350px;
+        top: -185px;
+        z-index: 1;
+      }
+
+      /* Line art SVG */
+      .line-art {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        z-index: 2;
+      }
+
+      /* Set up stroke dashes for SVG path drawing */
+      .capsule, .s2-capsule {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+      }
+      circle[id^="c"], circle[id^="s2-c"] {
+        stroke-dasharray: 2000;
+        stroke-dashoffset: 2000;
+      }
+
+      /* Stylized SVG character outlines */
+      .text-container {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+        z-index: 5;
+        position: absolute;
+        left: 360px;
+        top: 500px;
+      }
+      .char-svg {
+        overflow: visible;
+      }
+      .char-path {
+        stroke-dasharray: 600;
+        stroke-dashoffset: 600;
+      }
+
+      /* Scene 2: Connections & New Value */
+      #scene2 {
+        z-index: 2;
+        background: #111111;
+        opacity: 0;
+      }
+
+      /* Outro sub-composition slot */
+      #logo-outro {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        z-index: 3;
+      }
+
+      .red-shape-s2 {
+        position: absolute;
+        width: 1200px;
+        height: 1200px;
+        background: #F74026;
+        border-radius: 50%;
+        right: -300px;
+        bottom: -300px;
+        z-index: 1;
+      }
+
+      .s2-text-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        font-family: "Noto Sans JP", sans-serif;
+        color: #FFFFFF;
+        font-size: 60px;
+        font-weight: 300;
+        letter-spacing: 5px;
+        line-height: 1.4;
+        text-align: left;
+        position: absolute;
+        left: 200px;
+        top: 450px;
+        z-index: 5;
+      }
+
+      .s2-line2 {
+        color: #F74026;
+        font-weight: 700;
+      }
+
+      /* Grain overlay over the whole composition */
+      .grain-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 100;
+        background: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        opacity: 0.055;
+        mix-blend-mode: overlay;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-d7ng" id="root" data-composition-id="main" data-start="0" data-duration="16.5" data-width="1920" data-height="1080">
+      <!-- Media elements: must be direct children of the root -->
+      <audio data-hf-id="hf-00wc" id="narration" src="narration_japanese.wav" data-start="0.5" data-duration="13.5" data-track-index="10"></audio>
+
+      <!-- Unified grain overlay -->
+      <div data-hf-id="hf-rf63" class="grain-overlay" data-layout-ignore="true"></div>
+
+      <!-- --- SCENE 1 --- -->
+      <div data-hf-id="hf-7v8i" id="scene1" class="scene" data-layout-allow-overflow="true">
+        <!-- Giant red circle backdrop -->
+        <div data-hf-id="hf-lfpj" class="red-circle" data-layout-ignore="true"></div>
+
+        <!-- SVG Line Art Overlay -->
+        <svg data-hf-id="hf-k8jo" class="line-art" viewBox="0 0 1920 1080" data-layout-ignore="true">
+          <!-- Dashed circles -->
+          <circle data-hf-id="hf-84no" id="c1" cx="1300" cy="540" r="180" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" stroke-dasharray="6,6" fill="none" />
+          <circle data-hf-id="hf-jlth" id="c2" cx="1380" cy="460" r="100" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5" stroke-dasharray="4,4" fill="none" />
+          <circle data-hf-id="hf-528x" id="c3" cx="700" cy="880" r="380" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2.5" stroke-dasharray="8,8" fill="none" />
+          <circle data-hf-id="hf-hjfi" id="c4" cx="1100" cy="920" r="450" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2.5" stroke-dasharray="6,6" fill="none" />
+          
+          <!-- Interlocking small circles -->
+          <circle data-hf-id="hf-ernp" id="c5" cx="300" cy="180" r="20" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" stroke-dasharray="3,3" fill="none" />
+          <circle data-hf-id="hf-mq3m" id="c6" cx="315" cy="180" r="20" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" stroke-dasharray="3,3" fill="none" />
+
+          <circle data-hf-id="hf-jhbv" id="c7" cx="660" cy="300" r="15" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.5" stroke-dasharray="3,3" fill="none" />
+          <circle data-hf-id="hf-rvjp" id="c8" cx="670" cy="300" r="15" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.5" stroke-dasharray="3,3" fill="none" />
+
+          <!-- Horizontal capsules (pill outlines) -->
+          <path data-hf-id="hf-4ddw" class="capsule" d="M 100,560 L 350,560 A 90,90 0 0,0 350,740 L 100,740 A 90,90 0 0,0 100,560" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2.5" stroke-dasharray="6,6" fill="none" />
+          <path data-hf-id="hf-unih" class="capsule" d="M 80,880 L 200,880 A 25,25 0 0,0 200,930 L 80,930 A 25,25 0 0,0 80,880" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" stroke-dasharray="4,4" fill="none" />
+          <path data-hf-id="hf-ivp2" class="capsule" d="M 100,290 L 550,290 A 55,55 0 0,0 550,400 L 100,400 A 55,55 0 0,0 100,290" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2.5" stroke-dasharray="6,6" fill="none" />
+          <path data-hf-id="hf-pk0a" class="capsule" d="M 580,590 L 900,590 A 20,20 0 0,0 900,630 L 580,630 A 20,20 0 0,0 580,590" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" stroke-dasharray="4,4" fill="none" />
+
+          <!-- Dotted lines and tracks -->
+          <line data-hf-id="hf-4qwz" x1="200" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="1,8" stroke-linecap="round" />
+          <line data-hf-id="hf-aw23" x1="1200" y1="120" x2="1800" y2="120" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="1,10" stroke-linecap="round" />
+          <line data-hf-id="hf-wp0d" x1="1500" y1="260" x2="1900" y2="260" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="1,6" stroke-linecap="round" />
+        </svg>
+
+        <!-- Centered SVG Outline Characters -->
+        <div data-hf-id="hf-6kr6" class="text-container" data-layout-allow-overflow="true">
+          <!-- 人 (Hito) -->
+          <svg data-hf-id="hf-3eic" class="char-svg" viewBox="0 0 100 100" width="90" height="90">
+            <path data-hf-id="hf-xmwk" class="char-path char-1" d="M 50,15 C 45,45 25,75 5,90 M 45,50 C 55,65 75,80 95,90" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+          </svg>
+          <!-- と (To) -->
+          <svg data-hf-id="hf-mm30" class="char-svg" viewBox="0 0 100 100" width="90" height="90">
+            <path data-hf-id="hf-hvid" class="char-path char-2" d="M 25,25 L 75,35 C 75,55 60,85 20,85" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+          </svg>
+          <!-- 未 (Mi) -->
+          <svg data-hf-id="hf-lf5x" class="char-svg" viewBox="0 0 100 100" width="90" height="90">
+            <path data-hf-id="hf-rdqj" class="char-path char-3" d="M 20,30 L 80,30 M 15,50 L 85,50 M 50,15 L 50,90 M 50,50 L 20,85 M 50,50 L 80,85" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+          </svg>
+          <!-- 来 (Rai) -->
+          <svg data-hf-id="hf-ltgy" class="char-svg" viewBox="0 0 100 100" width="90" height="90">
+            <path data-hf-id="hf-6dt4" class="char-path char-4" d="M 20,25 L 80,25 M 25,45 L 75,45 M 50,10 L 50,90 M 35,45 C 30,55 15,65 5,70 M 65,45 C 70,55 85,65 95,70 M 50,45 L 20,85 M 50,45 L 80,85" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+          </svg>
+          <!-- と (To) -->
+          <svg data-hf-id="hf-nt03" class="char-svg" viewBox="0 0 100 100" width="90" height="90">
+            <path data-hf-id="hf-wgks" class="char-path char-5" d="M 25,25 L 75,35 C 75,55 60,85 20,85" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- --- SCENE 2 --- -->
+      <div data-hf-id="hf-3x4h" id="scene2" class="scene" data-layout-allow-overflow="true">
+        <!-- Red circle backdrop on right/bottom -->
+        <div data-hf-id="hf-vmgs" class="red-shape-s2" data-layout-ignore="true"></div>
+
+        <!-- SVG Line Art Overlay 2 -->
+        <svg data-hf-id="hf-anb0" class="line-art" viewBox="0 0 1920 1080" data-layout-ignore="true">
+          <!-- Concentric circles -->
+          <circle data-hf-id="hf-38tg" id="s2-c1" cx="960" cy="540" r="300" stroke="rgba(255, 255, 255, 0.15)" stroke-width="2" stroke-dasharray="4,8" fill="none" />
+          <circle data-hf-id="hf-k7vt" id="s2-c2" cx="960" cy="540" r="420" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1.5" stroke-dasharray="8,6" fill="none" />
+          <circle data-hf-id="hf-4e26" id="s2-c3" cx="960" cy="540" r="550" stroke="rgba(255, 255, 255, 0.2)" stroke-width="2.5" stroke-dasharray="10,10" fill="none" />
+
+          <!-- Dashed capsules -->
+          <path data-hf-id="hf-bl3w" class="s2-capsule" d="M 1400,200 L 1650,200 A 70,70 0 0,1 1650,340 L 1400,340 A 70,70 0 0,1 1400,200" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" stroke-dasharray="6,6" fill="none" />
+          <path data-hf-id="hf-9jd9" class="s2-capsule" d="M 1500,450 L 1750,450 A 50,50 0 0,1 1750,550 L 1500,550 A 50,50 0 0,1 1500,450" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5" stroke-dasharray="4,4" fill="none" />
+          
+          <!-- Diagonal dotted lines -->
+          <line data-hf-id="hf-5lli" x1="100" y1="1000" x2="600" y2="500" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="1,12" stroke-linecap="round" />
+          <line data-hf-id="hf-s5fg" x1="150" y1="1050" x2="650" y2="550" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="1,12" stroke-linecap="round" />
+        </svg>
+
+        <div data-hf-id="hf-opza" class="s2-text-container" data-layout-allow-overflow="true">
+          <div data-hf-id="hf-f5gt" class="s2-line1">繋がりが、</div>
+          <div data-hf-id="hf-7s8l" class="s2-line2">新しい価値を創造する。</div>
+        </div>
+      </div>
+
+      <!-- --- OUTRO SUB-COMPOSITION --- -->
+      <div data-hf-id="hf-jgs5" id="logo-outro" data-composition-id="logo-outro" data-composition-src="compositions/logo-outro.html" data-start="11.5" data-duration="5.0" data-track-index="1" data-width="1920" data-height="1080" data-variable-values='{"tagline":"Pattern Studio","url":"pattern.studio"}'></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.set(".red-circle", { x: -1400, data: "hf-hold" }, 0);
+
+      tl.from(".capsule", { strokeDashoffset: 1000, duration: 1.2, ease: "power3.out", stagger: 0.25 }, 0.4);
+      tl.from("circle[id^='c']", { strokeDashoffset: 2000, duration: 1.4, ease: "power2.out", stagger: 0.15 }, 0.6);
+      tl.from("line", { scaleX: 0, transformOrigin: "left center", duration: 1.0, ease: "power2.out", stagger: 0.1 }, 0.5);
+
+      // SVG character outline drawing
+      tl.to(".char-path.char-1", { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, 1.2);
+      tl.to(".char-path.char-2", { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, 1.5);
+      tl.to(".char-path.char-3", { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, 1.8);
+      tl.to(".char-path.char-4", { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, 2.1);
+      tl.to(".char-path.char-5", { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, 2.4);
+
+      // Ambient drifts during Scene 1 hold (start after entrance completes at 1.5s)
+      tl.to(".red-circle", { y: "+=25", x: "+=15", scale: 1.03, duration: 6.5, ease: "sine.inOut" }, 1.5);
+      tl.to("#c1", { rotation: 45, transformOrigin: "center center", duration: 6.5, ease: "sine.inOut" }, 1.5);
+      tl.to("#c3", { rotation: -30, transformOrigin: "center center", duration: 6.5, ease: "sine.inOut" }, 1.5);
+      tl.to(".capsule", { y: "-=10", x: "+=10", duration: 6.5, ease: "sine.inOut", stagger: 0.1 }, 1.5);
+
+      // --- TRANSITION 1: Push Slide at 8.0s (duration: 0.6s) ---
+      // Scene 1 goes out (left), Scene 2 pushes in (from right)
+      tl.to("#scene1", { x: -1920, duration: 0.6, ease: "power3.inOut" }, 8.0);
+      tl.fromTo("#scene2", { x: 1920, opacity: 1 }, { x: 0, duration: 0.6, ease: "power3.inOut" }, 8.0);
+
+      tl.from(".s2-capsule", { strokeDashoffset: 1000, duration: 1.2, ease: "power3.out", stagger: 0.2 }, 8.5);
+      tl.from("circle[id^='s2-c']", { strokeDashoffset: 2000, duration: 1.4, ease: "power2.out", stagger: 0.15 }, 8.7);
+
+      tl.from(".s2-line1", { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" }, 8.9);
+      tl.from(".s2-line2", { y: 40, opacity: 0, duration: 0.7, ease: "power2.out" }, 9.2);
+
+      // Ambient drifts during Scene 2 hold (start after S2 entrance completes at 9.8s)
+      tl.to(".red-shape-s2", { scale: 1.04, x: "-=20", y: "-=20", duration: 1.7, ease: "sine.inOut" }, 9.8);
+      tl.to("#s2-c1", { rotation: -20, transformOrigin: "center center", duration: 1.7, ease: "sine.inOut" }, 9.8);
+      tl.to("#s2-c3", { rotation: 15, transformOrigin: "center center", duration: 1.7, ease: "sine.inOut" }, 9.8);
+      tl.to(".s2-capsule", { y: "+=5", x: "-=5", duration: 1.7, ease: "sine.inOut", stagger: 0.05 }, 9.8);
+
+      // --- TRANSITION 2: Push Slide at 11.5s (duration: 0.6s) ---
+      // Scene 2 goes out (left), Outro pushes in (from right)
+      tl.to("#scene2", { x: -1920, duration: 0.6, ease: "power3.inOut" }, 11.5);
+      tl.fromTo("#logo-outro", { x: 1920 }, { x: 0, duration: 0.6, ease: "power3.inOut" }, 11.5);
+
+      // Outro fade to black at the end (allowed final scene exit)
+      tl.to("#root", { opacity: 0, duration: 0.8, ease: "power2.inOut" }, 15.7);
+
+      tl.to(".red-circle", { keyframes: { "0%": { x: -1400, scale: 0.7 }, "8%": { x: 0, scale: 1 }, "100%": { x: 15, scale: 1.03 } }, duration: 16.3, ease: "none" }, 0.2);
+
+      tl.from(".red-shape-s2", { x: 1200, y: 1200, duration: 1.4, ease: "power3.out" }, 8.3);
+
+      tl.from(".red-shape-s2", { scale: 0.7, duration: 1.4, ease: "power3.out" }, 8.3);
+
+      tl.set(".red-shape-s2", { x: 5, y: 19 }, 0);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

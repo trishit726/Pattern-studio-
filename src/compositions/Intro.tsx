@@ -31,7 +31,7 @@ import { Shape } from "../lib/patterngen/PatternField";
 
 const resolveSrc = (s: string) => (/^(https?:|blob:|data:)/.test(s) ? s : staticFile(s));
 const { fontFamily: ANTON } = loadAnton("normal", { weights: ["400"], subsets: ["latin"] });
-const { fontFamily: JP } = loadJP("normal", { weights: ["500"], subsets: ["japanese", "latin"] });
+const { fontFamily: JP } = loadJP("normal", { weights: ["500"], subsets: ["latin"] });
 
 export const introSchema = z.object({
   bgImage: z.string(), // public path / url for the painterly hero photo (entrance)

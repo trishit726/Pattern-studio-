@@ -24,23 +24,45 @@ const IMAGES = path.join(ROOT, "public", "images");
 fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(IMAGES, { recursive: true });
 
-// ── Aspect-ratio export ──────────────────────────────────────────────────────
-// Renders are 1920x1080; for other ratios we center-crop the finished MP4 with
-// ffmpeg so the design stays intact (no re-layout).
+// ── Aspect-ratio + multi-format export ───────────────────────────────────────
+// Renders are 1920x1080 MP4; everything else (other ratios, WebM, GIF) is derived
+// from that base file with ffmpeg — center-cropped so the design stays intact
+// (no re-layout) and transcoded to the target codec. One Remotion render, many
+// outputs.
 const RATIOS = { "16:9": 16 / 9, "3:2": 3 / 2, "4:3": 4 / 3, "5:4": 5 / 4, "1:1": 1, "4:5": 4 / 5, "9:16": 9 / 16 };
-function cropToRatio(src, ratio, id) {
+
+// Center-crop rectangle for a ratio against the 1920x1080 source (null for 16:9).
+function cropRect(ratio) {
   const ar = RATIOS[ratio];
-  if (!ar) return Promise.resolve(null);
+  if (!ar || ratio === "16:9") return null;
   const SW = 1920, SH = 1080, sAR = SW / SH;
   let cw, ch;
   if (ar <= sAR) { ch = SH; cw = Math.round(SH * ar); } else { cw = SW; ch = Math.round(SW / ar); }
   cw -= cw % 2; ch -= ch % 2;
   const x = Math.round((SW - cw) / 2), y = Math.round((SH - ch) / 2);
-  const rel = `pattern-${id}-${ratio.replace(":", "x")}.mp4`;
+  return `crop=${cw}:${ch}:${x}:${y}`;
+}
+
+// Derive one output file (format × ratio) from the base 1920x1080 MP4.
+function deriveOutput(src, { format, ratio, id }) {
+  const ext = format === "webm" ? "webm" : format === "gif" ? "gif" : "mp4";
+  const tag = ratio === "16:9" ? "" : `-${ratio.replace(":", "x")}`;
+  const rel = `pattern-${id}-${format}${tag}.${ext}`;
   const outPath = path.join(OUT, rel);
+  const crop = cropRect(ratio);
+  let args;
+  if (format === "gif") {
+    // crop → 15fps → 640w → palette for a clean, size-bounded GIF.
+    const vf = [crop, "fps=15", "scale=640:-1:flags=lanczos", "split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse"].filter(Boolean).join(",");
+    args = ["-y", "-i", src, "-vf", vf, "-loop", "0", outPath];
+  } else if (format === "webm") {
+    args = ["-y", "-i", src, ...(crop ? ["-vf", crop] : []), "-c:v", "libvpx-vp9", "-crf", "32", "-b:v", "0", "-c:a", "libopus", outPath];
+  } else {
+    args = ["-y", "-i", src, ...(crop ? ["-vf", crop] : []), "-c:v", "libx264", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "copy", outPath];
+  }
   return new Promise((resolve) => {
-    execFile(ffmpegPath, ["-y", "-i", src, "-vf", `crop=${cw}:${ch}:${x}:${y}`, "-c:a", "copy", "-c:v", "libx264", "-crf", "20", "-pix_fmt", "yuv420p", outPath], (err) => {
-      if (err) { console.error("ffmpeg crop failed:", err.message); resolve(null); }
+    execFile(ffmpegPath, args, (err) => {
+      if (err) { console.error(`ffmpeg ${format} ${ratio} failed:`, err.message); resolve(null); }
       else resolve(`/out/${rel}`);
     });
   });
@@ -241,7 +263,7 @@ Rules:
 - x, y are fractions 0..1 of a 1920x1080 canvas. Keep the block centered-left (x ~0.34-0.46) and vertically centered (y ~0.44-0.62). Put a label just below the block; put a jp accent to the right of it.
 - size: block ~110-150, label ~26-34, jp ~36-44.
 - accent must pop against bgColor. Choose a palette ("colors", 3-6 hex) that evokes the brand's mood.
-- density and proximity are 8-14. seed is any integer.
+- density is 8-12 (how many shapes). proximity is 2-4 (keep shapes clustered tightly AROUND the title — higher values scatter them across the whole frame and look cluttered, so stay low). seed is any integer.
 - shapes: 6-12 ids chosen ONLY from: ${SHAPE_IDS.join(", ")}.
 - Respond with ONLY the JSON object — no prose, no markdown, no code fences.`;
 
@@ -310,13 +332,31 @@ app.post("/render", async (req, res) => {
     });
     console.log("Done:", outputLocation);
 
-    let url = `/out/pattern-${id}.mp4`;
-    const ratio = req.body.ratio;
-    if (ratio && ratio !== "16:9") {
-      const cropped = await cropToRatio(outputLocation, ratio, id);
-      if (cropped) { url = cropped; console.log(`Cropped to ${ratio}`); }
+    // Derive every requested output from the base MP4.
+    const formats = Array.isArray(req.body.formats) && req.body.formats.length ? req.body.formats : ["mp4"];
+    const batchRatios = !!req.body.batchRatios;
+    const selRatio = req.body.ratio || "16:9";
+    const outputs = [];
+
+    // MP4 is the primary deliverable — supports batch-all-ratios.
+    if (formats.includes("mp4")) {
+      const mp4Ratios = batchRatios ? Object.keys(RATIOS) : [selRatio];
+      for (const r of mp4Ratios) {
+        if (r === "16:9") { outputs.push({ format: "mp4", ratio: "16:9", url: `/out/pattern-${id}.mp4` }); }
+        else { const u = await deriveOutput(outputLocation, { format: "mp4", ratio: r, id }); if (u) { outputs.push({ format: "mp4", ratio: r, url: u }); console.log(`mp4 → ${r}`); } }
+      }
     }
-    res.json({ url });
+    // WebM + GIF render at the selected ratio.
+    for (const fmt of ["webm", "gif"]) {
+      if (formats.includes(fmt)) {
+        const u = await deriveOutput(outputLocation, { format: fmt, ratio: selRatio, id });
+        if (u) { outputs.push({ format: fmt, ratio: selRatio, url: u }); console.log(`${fmt} → ${selRatio}`); }
+      }
+    }
+
+    // `url` = primary output (selected-ratio MP4 when present) for back-compat.
+    const primary = outputs.find((o) => o.format === "mp4" && o.ratio === selRatio) || outputs.find((o) => o.format === "mp4") || outputs[0];
+    res.json({ url: primary?.url ?? `/out/pattern-${id}.mp4`, outputs });
   } catch (e) {
     console.error(e);
     res.status(500).send(String(e?.message ?? e));
