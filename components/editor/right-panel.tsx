@@ -103,7 +103,7 @@ export function RightPanel() {
 
   return (
     <aside className="accent-veil flex h-full w-[380px] shrink-0 flex-col border-l border-border bg-sidebar">
-      <ScrollArea className="flex-1 scroll-thin">
+      <ScrollArea className="min-h-0 flex-1 scroll-thin">
         <div className="flex flex-col gap-4 p-4">
           <AiPrompter />
           {e.comp === "PatternTitle" ? <PresetControls /> : null}
