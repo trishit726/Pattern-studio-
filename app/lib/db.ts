@@ -14,9 +14,12 @@ import { sql } from "@vercel/postgres"
  * the AWS SDK resolve them from the standard provider chain (useful in some
  * Vercel/AWS runtimes where credentials are injected ambiently).
  */
-const region = process.env.AWS_REGION || "us-east-1"
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+// Trim credentials defensively: a stray space or newline from copy/paste
+// corrupts the SigV4 Authorization header and yields a confusing
+// "Invalid key=value pair (missing equal-sign)" error from AWS.
+const region = (process.env.AWS_REGION || "us-east-1").trim()
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim()
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim()
 
 const client = new DynamoDBClient({
   region,
@@ -35,7 +38,7 @@ export const db = DynamoDBDocumentClient.from(client, {
 
 /** Name of the DynamoDB table that stores saved scenes. */
 export const TABLE_NAME =
-  process.env.AWS_DYNAMODB_TABLE_NAME || "pattern-studio-scenes"
+  process.env.AWS_DYNAMODB_TABLE_NAME?.trim() || "pattern-studio-scenes"
 
 /**
  * Logs a single render action to Vercel Postgres.
