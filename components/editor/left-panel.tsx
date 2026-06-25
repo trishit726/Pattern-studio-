@@ -51,7 +51,7 @@ export function LeftPanel() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
 
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col border-r border-border bg-sidebar">
+    <aside className="accent-veil flex h-full w-72 shrink-0 flex-col border-r border-border bg-sidebar">
       <div className="flex items-center gap-2.5 px-4 py-3.5">
         <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Sparkles className="size-4" />
@@ -102,8 +102,8 @@ export function LeftPanel() {
 
       <Separator className="my-4" />
 
-      {/* Cloud library — native file-manager feel */}
-      <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
+      {/* Cloud library — glassmorphic, native file-manager feel */}
+      <div className="glass mx-3 mb-3 flex min-h-0 flex-1 flex-col rounded-xl p-3">
         <div className="flex items-center justify-between px-1 pb-2">
           <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             <Cloud className="size-3.5" />

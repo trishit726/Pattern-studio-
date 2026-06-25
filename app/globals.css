@@ -158,4 +158,24 @@
   .scroll-thin::-webkit-scrollbar-track {
     background: transparent;
   }
+
+  /* Frosted glass surface for premium panels (Cloud Library, etc.) */
+  .glass {
+    background: color-mix(in oklch, var(--card) 55%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in oklch, var(--foreground) 7%, transparent),
+      0 8px 28px -12px rgb(0 0 0 / 0.6);
+  }
+
+  /* Soft brand glow used behind sidebars for depth */
+  .accent-veil {
+    background-image: radial-gradient(
+      120% 80% at 100% 0%,
+      color-mix(in oklch, var(--primary) 12%, transparent) 0%,
+      transparent 55%
+    );
+  }
 }

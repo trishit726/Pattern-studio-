@@ -1,6 +1,7 @@
 "use client"
 
-import { Copy, Download, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react"
+import { useState } from "react"
+import { ChevronDown, Copy, Download, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,18 +46,54 @@ function SectionCard({
   title,
   hint,
   children,
+  defaultOpen = true,
 }: {
   title: string
   hint?: string
   children: React.ReactNode
+  defaultOpen?: boolean
 }) {
+  const [open, setOpen] = useState(defaultOpen)
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-border bg-card/40 p-4">
-      <div className="flex flex-col gap-0.5">
-        <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
-        {hint ? <p className="text-[11px] leading-relaxed text-muted-foreground">{hint}</p> : null}
+    <section
+      data-open={open}
+      className={cn(
+        "group/section flex flex-col rounded-lg border border-border bg-card/40 transition-all duration-200",
+        "hover:border-primary/30 hover:bg-card/60 hover:shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_18%,transparent)]",
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={cn(
+          "flex w-full items-start gap-2 rounded-lg px-4 py-3 text-left transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+        )}
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
+          {hint ? <p className="text-[11px] leading-relaxed text-muted-foreground">{hint}</p> : null}
+        </div>
+        <ChevronDown
+          className={cn(
+            "mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform duration-300",
+            "group-hover/section:text-foreground",
+            open ? "rotate-0" : "-rotate-90",
+          )}
+        />
+      </button>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: open ? "1fr" : "0fr",
+          transition: "grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-col gap-3 px-4 pb-4 pt-0">{children}</div>
+        </div>
       </div>
-      {children}
     </section>
   )
 }
@@ -65,7 +102,7 @@ export function RightPanel() {
   const e = useEditor()
 
   return (
-    <aside className="flex h-full w-[380px] shrink-0 flex-col border-l border-border bg-sidebar">
+    <aside className="accent-veil flex h-full w-[380px] shrink-0 flex-col border-l border-border bg-sidebar">
       <ScrollArea className="flex-1 scroll-thin">
         <div className="flex flex-col gap-4 p-4">
           <AiPrompter />
