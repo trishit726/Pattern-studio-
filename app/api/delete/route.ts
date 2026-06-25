@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { GetCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb"
-import { db, TABLE_NAME } from "@/app/lib/db"
+import { deleteScene } from "@/app/lib/db"
 
 export const runtime = "nodejs"
 
@@ -13,24 +12,17 @@ async function handleDelete(id: string | null, userId: string | null) {
   }
 
   try {
-    // 1. Fetch item to confirm ownership.
-    const getResponse = await db.send(
-      new GetCommand({ TableName: TABLE_NAME, Key: { id } }),
-    )
+    // Single conditional DeleteItem: the attribute_exists(PK) guard means a
+    // caller can only delete an item that exists inside their own partition,
+    // so ownership is enforced without a separate read-then-check round trip.
+    const deleted = await deleteScene(userId, id)
 
-    if (!getResponse.Item) {
-      return NextResponse.json({ error: "Scene not found" }, { status: 404 })
-    }
-
-    if (getResponse.Item.userId !== userId) {
+    if (!deleted) {
       return NextResponse.json(
-        { error: "Unauthorized: You do not own this scene" },
-        { status: 403 },
+        { error: "Scene not found or not owned by you" },
+        { status: 404 },
       )
     }
-
-    // 2. Delete item.
-    await db.send(new DeleteCommand({ TableName: TABLE_NAME, Key: { id } }))
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
