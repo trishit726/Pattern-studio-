@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { logRenderEvent } from "@/app/lib/db"
+import { recordRender } from "@/app/lib/db"
 
 export const runtime = "nodejs"
 
@@ -17,10 +17,15 @@ export async function POST(req: Request) {
   }
 
   try {
-    await logRenderEvent(userId, composition, Number(durationSec), status)
-    return NextResponse.json({ success: true })
+    const event = await recordRender({
+      userId,
+      composition,
+      durationSec: Number(durationSec),
+      status,
+    })
+    return NextResponse.json({ success: true, event })
   } catch (error: any) {
-    console.error("[v0] Error logging render to Postgres:", error)
+    console.error("[v0] Error recording render to DynamoDB:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

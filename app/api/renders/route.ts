@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { listScenes } from "@/app/lib/db"
+import { listRenders } from "@/app/lib/db"
 
 export const runtime = "nodejs"
 
@@ -15,12 +15,12 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Single-partition Query over the sparse GSI1 (recency order). No Scan
-    // fallback by design — see app/lib/db.ts for the access-pattern map.
-    const scenes = await listScenes(userId)
-    return NextResponse.json(scenes)
+    // Renders share the user's partition with their scenes and are isolated by
+    // the "RENDER#" sort-key prefix — a single Query, newest first, no index.
+    const renders = await listRenders(userId)
+    return NextResponse.json(renders)
   } catch (error: any) {
-    console.error("[v0] Error listing scenes from DynamoDB:", error)
+    console.error("[v0] Error listing renders from DynamoDB:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server"
-import { PutCommand } from "@aws-sdk/lib-dynamodb"
-import { db, TABLE_NAME } from "@/app/lib/db"
+import { saveScene } from "@/app/lib/db"
 
 export const runtime = "nodejs"
 
 export async function POST(req: Request) {
   try {
-    const { id, name, props, duration, userId } = await req.json()
+    const { id, name, props, duration, userId, template } = await req.json()
 
     if (!id || !name || !props || !userId) {
       return NextResponse.json(
@@ -15,21 +14,15 @@ export async function POST(req: Request) {
       )
     }
 
-    const item = {
+    const item = await saveScene({
       id,
       userId,
+      // Existing PatternTitle editor omits `template`; default keeps it working.
+      template: typeof template === "string" && template ? template : "PatternTitle",
       name,
       props,
       duration: duration || 150,
-      updatedAt: Date.now(),
-    }
-
-    await db.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: item,
-      }),
-    )
+    })
 
     return NextResponse.json({ success: true, item })
   } catch (error: any) {

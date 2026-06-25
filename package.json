@@ -12,6 +12,7 @@
     "studio": "remotion studio",
     "render": "remotion render",
     "server": "node server/render-server.mjs",
+    "setup:db": "node scripts/setup-dynamodb.mjs",
     "upgrade": "remotion upgrade",
     "typecheck": "tsc --noEmit"
   },

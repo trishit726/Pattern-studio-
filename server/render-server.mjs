@@ -218,6 +218,32 @@ app.post("/render", async (req, res) => {
     const composition = await selectComposition({ serveUrl, id: compId, inputProps: props, port: 3017 });
     if (duration) composition.durationInFrames = duration;
 
+    // ── Transparent export ──────────────────────────────────────────────────
+    // Alpha-capable compositions (LowerThird, TransparentOverlay, CaptionedClip)
+    // set no background. Render them to VP9 WebM with a yuva420p pixel format so
+    // the file carries a real alpha channel and drops onto footage in any NLE.
+    // (h264/yuv420p — the normal path — cannot hold transparency.)
+    if (req.body.alpha) {
+      const rel = `pattern-${id}-alpha.webm`;
+      const alphaOut = path.join(OUT, rel);
+      console.log(`Rendering ${compId} (transparent) → ${rel} …`);
+      await renderMedia({
+        composition,
+        serveUrl,
+        codec: "vp9",
+        pixelFormat: "yuva420p",
+        imageFormat: "png", // PNG frames preserve alpha; JPEG would flatten it.
+        outputLocation: alphaOut,
+        inputProps: props,
+        port: 3018,
+      });
+      console.log("Done (alpha):", alphaOut);
+      return res.json({
+        url: `/out/${rel}`,
+        outputs: [{ format: "webm", ratio: "16:9", alpha: true, url: `/out/${rel}` }],
+      });
+    }
+
     const outputLocation = path.join(OUT, `pattern-${id}.mp4`);
     console.log(`Rendering ${compId} → pattern-${id}.mp4 …`);
     await renderMedia({
