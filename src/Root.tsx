@@ -35,11 +35,6 @@ import { KineticText, kineticTextSchema } from "./compositions/KineticText";
 import { TransparentOverlay, transparentOverlaySchema } from "./compositions/TransparentOverlay";
 import { FourCardsGrid, fourCardsSchema, fourCardsDefaults } from "./compositions/FourCardsGrid";
 import { SoundShowcase, soundShowcaseSchema } from "./compositions/SoundShowcase";
-import { EndCard, endCardSchema, endCardDefaults } from "./compositions/EndCard";
-import { StatCountUp, statCountUpSchema, statCountUpDefaults } from "./compositions/StatCountUp";
-import { QuoteCard, quoteCardSchema, quoteCardDefaults } from "./compositions/QuoteCard";
-import { VerticalPromo, verticalPromoSchema, verticalPromoDefaults } from "./compositions/VerticalPromo";
-import { CaptionedClip, captionedClipSchema, captionedClipDefaults } from "./compositions/CaptionedClip";
 
 import { SolutionArchitecture, solutionArchitectureSchema, SA_DURATION } from "./compositions/SolutionArchitecture";
 
@@ -377,64 +372,6 @@ export const RemotionRoot: React.FC = () => {
         height={CANVAS.height}
         schema={transparentOverlaySchema}
         defaultProps={{"label":"LIVE","badgeColor":"#ee074f","textColor":"#ffffff"}}
-      />
-
-      <Composition
-        id="EndCard"
-        component={EndCard}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={endCardSchema}
-        defaultProps={endCardDefaults}
-      />
-
-      <Composition
-        id="StatCountUp"
-        component={StatCountUp}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={statCountUpSchema}
-        defaultProps={statCountUpDefaults}
-      />
-
-      <Composition
-        id="QuoteCard"
-        component={QuoteCard}
-        durationInFrames={seconds(6)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={quoteCardSchema}
-        defaultProps={quoteCardDefaults}
-      />
-
-      {/* Vertical 9:16 for Stories / Reels / TikTok. */}
-      <Composition
-        id="VerticalPromo"
-        component={VerticalPromo}
-        durationInFrames={seconds(6)}
-        fps={FPS}
-        width={1080}
-        height={1920}
-        schema={verticalPromoSchema}
-        defaultProps={verticalPromoDefaults}
-      />
-
-      {/* Transparent caption overlay — render with the alpha codec for a real
-          alpha channel (see render server `alpha: true`). */}
-      <Composition
-        id="CaptionedClip"
-        component={CaptionedClip}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={captionedClipSchema}
-        defaultProps={captionedClipDefaults}
       />
     </>
   );
