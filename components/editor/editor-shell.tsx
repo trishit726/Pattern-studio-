@@ -111,10 +111,6 @@ function Toolbar() {
           {e.rendering ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
           {e.rendering ? "Rendering…" : "Render MP4"}
         </Button>
-
-        <Separator orientation="vertical" className="mx-1 h-6" />
-
-        {e.AuthUI}
       </div>
     </header>
   )

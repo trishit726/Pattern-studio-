@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Copy, Download, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react"
+import { ChevronDown, Download, Plus, Trash2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useEditor } from "./editor-provider"
 import { BarSlider, ColorSwatch, Field } from "./primitives"
-import { CONFORMITY_TEMPLATES, MUSIC, PALETTE } from "./constants"
+import { MUSIC, PALETTE } from "./constants"
 import { Shape } from "@/src/lib/patterngen/PatternField"
 import { ANIM_TYPES } from "@/src/lib/patterngen/engine"
 
@@ -105,8 +105,6 @@ export function RightPanel() {
     <aside className="accent-veil flex h-full w-[380px] shrink-0 flex-col border-l border-border bg-sidebar">
       <ScrollArea className="min-h-0 flex-1 scroll-thin">
         <div className="flex flex-col gap-4 p-4">
-          <AiPrompter />
-          {e.comp === "PatternTitle" ? <PresetControls /> : null}
           {e.isPattern ? <PatternControls /> : null}
           {e.comp === "Timeline" ? <TimelineControls /> : null}
           {e.comp === "Assembly" ? <AssemblyControls /> : null}
@@ -116,72 +114,6 @@ export function RightPanel() {
         </div>
       </ScrollArea>
     </aside>
-  )
-}
-
-function AiPrompter() {
-  const e = useEditor()
-  return (
-    <SectionCard
-      title="AI Brand Designer"
-      hint="Describe a brand or topic — AI designs the title, palette & pattern. Everything stays editable."
-    >
-      <Textarea
-        value={e.aiPrompt}
-        onChange={(ev) => e.setAiPrompt(ev.target.value)}
-        rows={3}
-        placeholder="e.g. Ember — a warm, rustic specialty coffee roaster"
-        className="resize-none text-sm"
-      />
-      <div className="flex items-center gap-2">
-        <Button
-          className="flex-1"
-          disabled={e.aiBusy || !e.aiPrompt.trim()}
-          onClick={e.generateAI}
-        >
-          <Sparkles data-icon="inline-start" />
-          {e.aiBusy ? "Designing…" : "Generate Scene"}
-        </Button>
-        <Button variant="secondary" disabled={e.scriptBusy} onClick={e.writeScript}>
-          <Wand2 data-icon="inline-start" />
-          {e.scriptBusy ? "Writing…" : "Script"}
-        </Button>
-      </div>
-      {e.script ? (
-        <div className="flex flex-col gap-2">
-          <Textarea readOnly value={e.script} rows={6} className="resize-none text-xs leading-relaxed text-muted-foreground" />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-fit"
-            onClick={() => navigator.clipboard.writeText(e.script)}
-          >
-            <Copy data-icon="inline-start" />
-            Copy script
-          </Button>
-        </div>
-      ) : null}
-    </SectionCard>
-  )
-}
-
-function PresetControls() {
-  const e = useEditor()
-  return (
-    <SectionCard title="Conformity Presets" hint="One-click starting points you can tweak.">
-      <div className="flex flex-wrap gap-2">
-        {CONFORMITY_TEMPLATES.map((t) => (
-          <Button
-            key={t.name}
-            variant="outline"
-            size="sm"
-            onClick={() => e.applyTemplate(t.props)}
-          >
-            {t.name.replace("Conformity ", "")}
-          </Button>
-        ))}
-      </div>
-    </SectionCard>
   )
 }
 

@@ -6,10 +6,6 @@ export type CompId = "PatternTitle" | "Timeline" | "Assembly" | "Intro" | "FourC
 
 export const COMP_LABELS: { id: CompId; label: string; hint: string }[] = [
   { id: "PatternTitle", label: "Pattern Title", hint: "Single procedural title card" },
-  { id: "Timeline", label: "Timeline", hint: "Multi-scene reel" },
-  { id: "Intro", label: "Intro", hint: "Animated opener" },
-  { id: "Assembly", label: "Assembly", hint: "Full film" },
-  { id: "FourCardsGrid", label: "Workflow Grid", hint: "4-card sequence" },
 ]
 
 // The external Remotion render server (separate node process — `npm run server`).
