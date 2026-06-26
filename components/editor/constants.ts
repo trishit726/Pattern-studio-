@@ -4,11 +4,7 @@ export const MUSIC = "music/lofi.mp3" // CC0 lo-fi bed (HoliznaCC0) in public/mu
 
 export type CompId =
   | "PatternTitle"
-  | "SwissTitle"
-  | "BrutalistTitle"
-  | "CyberTitle"
-  | "JapaneseTitle"
-  | "StyledTitle"
+  | "SwissPoster"
   | "Timeline"
   | "Assembly"
   | "Intro"
@@ -16,11 +12,7 @@ export type CompId =
 
 export const COMP_LABELS: { id: CompId; label: string; hint: string }[] = [
   { id: "PatternTitle", label: "Pattern Title", hint: "Single procedural title card" },
-  { id: "SwissTitle", label: "Swiss Editorial", hint: "Rotated bars · red ground" },
-  { id: "BrutalistTitle", label: "Brutalist", hint: "Giant type · concrete · mono" },
-  { id: "CyberTitle", label: "Glass / Holographic", hint: "Iridescent glass torus" },
-  { id: "JapaneseTitle", label: "Japanese Editorial", hint: "Hinomaru · vertical Mincho" },
-  { id: "StyledTitle", label: "Style Lab", hint: "Blend styles · full controls" },
+  { id: "SwissPoster", label: "Swiss Poster", hint: "Armature · crossing axes" },
 ]
 
 // The external Remotion render server (separate node process — `npm run server`).

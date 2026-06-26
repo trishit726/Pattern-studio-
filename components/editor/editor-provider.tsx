@@ -19,7 +19,6 @@ import {
 } from "@/src/compositions/Timeline"
 import { fourCardsDefaults, type FourCardsProps } from "@/src/compositions/FourCardsGrid"
 import { STYLE_COMPS, isStyleComp } from "./style-comps"
-import { resolveStack, type StyleSpec } from "@/src/style"
 import { ANIM_TYPES } from "@/src/lib/patterngen/engine"
 import {
   MUSIC,
@@ -67,16 +66,6 @@ interface EditorContextValue {
   styleProps: Record<string, Record<string, any>>
   setStyleProp: (compId: string, key: string, value: unknown) => void
   reseedStyle: (compId: string) => void
-  // Style Lab (blend + full-spec editing of the generic StyledTitle)
-  labA: string
-  labB: string
-  labWeight: number
-  labContent: { headline: string; secondary: string; seed: number }
-  labSpec: StyleSpec
-  setLabBlend: (a: string, b: string, weight: number) => void
-  setLabContentField: (key: "headline" | "secondary", value: string) => void
-  reseedLab: () => void
-  setLabSpec: React.Dispatch<React.SetStateAction<StyleSpec>>
   // duration / selection
   duration: number
   setDuration: React.Dispatch<React.SetStateAction<number>>
@@ -190,24 +179,6 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setStyleProps((p) => ({ ...p, [compId]: { ...p[compId], [key]: value } }))
   const reseedStyle = (compId: string) =>
     setStyleProps((p) => ({ ...p, [compId]: { ...p[compId], seed: Math.floor(Math.random() * 1e9) } }))
-
-  // Style Lab: blend two styles into a working spec the user can then fine-tune.
-  const [labA, setLabA] = useState("swiss")
-  const [labB, setLabB] = useState("cyberHud")
-  const [labWeight, setLabWeight] = useState(60) // A's share, %
-  const [labContent, setLabContent] = useState({ headline: "Hybrid", secondary: "STYLE STACK", seed: 7 })
-  const [labSpec, setLabSpec] = useState<StyleSpec>(() =>
-    resolveStack({ layers: [{ styleId: "swiss", weight: 0.6 }, { styleId: "cyberHud", weight: 0.4 }] }),
-  )
-  const setLabBlend = (a: string, b: string, weight: number) => {
-    setLabA(a)
-    setLabB(b)
-    setLabWeight(weight)
-    setLabSpec(resolveStack({ layers: [{ styleId: a, weight: weight / 100 }, { styleId: b, weight: (100 - weight) / 100 }] }))
-  }
-  const setLabContentField = (key: "headline" | "secondary", value: string) =>
-    setLabContent((c) => ({ ...c, [key]: value }))
-  const reseedLab = () => setLabContent((c) => ({ ...c, seed: Math.floor(Math.random() * 1e9) }))
 
   const updateCard = (idx: number, patch: Partial<FourCardsProps["cards"][number]>) => {
     setFourCardsProps((p) => ({
@@ -623,8 +594,6 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         body = { composition: "FourCardsGrid", props: fourCardsProps }
       } else if (isStyleComp(comp)) {
         body = { composition: comp, props: styleProps[comp], duration: STYLE_COMPS[comp].durationInFrames }
-      } else if (comp === "StyledTitle") {
-        body = { composition: "StyledTitle", props: { ...labContent, style: labSpec }, duration: 150 }
       } else {
         let imageData: string | undefined, imageExt: string | undefined
         if (imageFile) {
@@ -714,15 +683,6 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     styleProps,
     setStyleProp,
     reseedStyle,
-    labA,
-    labB,
-    labWeight,
-    labContent,
-    labSpec,
-    setLabBlend,
-    setLabContentField,
-    reseedLab,
-    setLabSpec,
     duration,
     setDuration,
     selectedId,

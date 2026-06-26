@@ -27,11 +27,7 @@ import { COMP_LABELS, type CompId } from "./constants"
 
 const COMP_ICONS: Record<CompId, React.ComponentType<{ className?: string }>> = {
   PatternTitle: LayoutTemplate,
-  SwissTitle: Palette,
-  BrutalistTitle: Palette,
-  CyberTitle: Palette,
-  JapaneseTitle: Palette,
-  StyledTitle: Layers,
+  SwissPoster: Palette,
   Timeline: Layers,
   Intro: FilmIcon,
   Assembly: Clapperboard,

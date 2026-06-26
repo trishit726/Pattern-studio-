@@ -17,11 +17,7 @@ import { CANVAS, FPS, seconds } from "./config";
 import { Assembly, assemblySchema, ASSEMBLY_DURATION } from "./compositions/Assembly";
 import { Intro, introSchema, introDefaults, INTRO_DURATION } from "./compositions/Intro";
 import { PatternTitle, patternTitleSchema } from "./compositions/PatternTitle";
-import { SwissTitle, swissTitleSchema, swissTitleDefaults } from "./compositions/SwissTitle";
-import { BrutalistTitle, brutalistTitleSchema, brutalistTitleDefaults } from "./compositions/BrutalistTitle";
-import { CyberTitle, cyberTitleSchema, cyberTitleDefaults } from "./compositions/CyberTitle";
-import { JapaneseTitle, japaneseTitleSchema, japaneseTitleDefaults } from "./compositions/JapaneseTitle";
-import { StyledTitle, styledTitleSchema, styledTitleDefaults } from "./compositions/StyledTitle";
+import { SwissPoster, swissPosterSchema, SWISS_POSTER_DURATION } from "./compositions/SwissPoster";
 import { Promo, promoSchema, promoDefaults, PROMO_DURATION } from "./compositions/Promo";
 import { Architecture, architectureSchema, architectureDefaults, ARCH_DURATION } from "./compositions/Architecture";
 import { ProblemStatement, problemSchema, problemDefaults, PROBLEM_DURATION } from "./compositions/ProblemStatement";
@@ -186,61 +182,38 @@ export const RemotionRoot: React.FC = () => {
         }}
       />
 
-      {/* Style Engine proof — fully procedural Swiss style from the "swiss" pack. */}
+      {/* SwissPoster — standalone hand-built Swiss poster (not on the Style Engine). */}
       <Composition
-        id="SwissTitle"
-        component={SwissTitle}
-        durationInFrames={seconds(5)}
+        id="SwissPoster"
+        component={SwissPoster}
+        durationInFrames={SWISS_POSTER_DURATION}
         fps={FPS}
         width={CANVAS.width}
         height={CANVAS.height}
-        schema={swissTitleSchema}
-        defaultProps={swissTitleDefaults}
-      />
-
-      <Composition
-        id="BrutalistTitle"
-        component={BrutalistTitle}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={brutalistTitleSchema}
-        defaultProps={brutalistTitleDefaults}
-      />
-
-      <Composition
-        id="CyberTitle"
-        component={CyberTitle}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={cyberTitleSchema}
-        defaultProps={cyberTitleDefaults}
-      />
-
-      <Composition
-        id="JapaneseTitle"
-        component={JapaneseTitle}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={japaneseTitleSchema}
-        defaultProps={japaneseTitleDefaults}
-      />
-
-      {/* Generic StyleSpec-driven renderer — powers Style Stacks (blends). */}
-      <Composition
-        id="StyledTitle"
-        component={StyledTitle as never}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={styledTitleSchema}
-        defaultProps={styledTitleDefaults as never}
+        schema={swissPosterSchema}
+        defaultProps={{
+          kicker: "INTERNATIONAL TYPOGRAPHIC STYLE",
+          year: "1957",
+          headlineTop: "FONT",
+          headlineBottom: "HEADING",
+          metaLines: [
+            "Order, white space, precision.",
+            "Form follows function.",
+            "The grid is structure, not decoration.",
+          ],
+          footer: "DESIGNER WITH IMPACT",
+          seed: 7,
+          angle: -52,
+          counterAxis: true,
+          nodeX: 50,
+          nodeY: 48,
+          barCount: 10,
+          elbow: true,
+          headlineSize: 230,
+          paperColor: "#0e0e10",
+          inkColor: "#f2efe6",
+          accentColor: "#e2231a",
+        }}
       />
 
       <Composition
