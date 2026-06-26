@@ -31,6 +31,7 @@ const COMP_ICONS: Record<CompId, React.ComponentType<{ className?: string }>> = 
   BrutalistTitle: Palette,
   CyberTitle: Palette,
   JapaneseTitle: Palette,
+  StyledTitle: Layers,
   Timeline: Layers,
   Intro: FilmIcon,
   Assembly: Clapperboard,

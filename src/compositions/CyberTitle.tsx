@@ -46,7 +46,15 @@ const GlassTorus: React.FC<{ rot: number; reveal: number; palette: string[] }> =
     WebkitMaskImage: RING_MASK,
     maskImage: RING_MASK,
   };
-  const blur = 18 - reveal * 12; // de-blurs as it resolves in
+  const masked = (extra: React.CSSProperties): React.CSSProperties => ({
+    position: "absolute",
+    inset: 0,
+    borderRadius: "50%",
+    WebkitMaskImage: RING_MASK,
+    maskImage: RING_MASK,
+    ...extra,
+  });
+  const blur = 16 - reveal * 11; // de-blurs as it resolves in
 
   return (
     <div
@@ -60,29 +68,33 @@ const GlassTorus: React.FC<{ rot: number; reveal: number; palette: string[] }> =
         opacity: reveal,
       }}
     >
+      {/* contact shadow on the "floor" */}
+      <div style={{ position: "absolute", left: "18%", right: "18%", bottom: -10, height: 70, borderRadius: "50%", background: "rgba(0,0,0,0.55)", filter: "blur(34px)" }} />
+
       {/* volumetric glow behind the form */}
-      <div style={{ position: "absolute", inset: -90, borderRadius: "50%", background: grad, filter: "blur(110px)", opacity: 0.45 }} />
+      <div style={{ position: "absolute", inset: -90, borderRadius: "50%", background: grad, filter: "blur(120px)", opacity: 0.5 }} />
 
       {/* chromatic-aberration copies (offset + additive) */}
-      <div style={{ ...ringBase, transform: "translateX(6px)", mixBlendMode: "screen", filter: `blur(${blur}px) saturate(1.5)`, opacity: 0.65 }} />
-      <div style={{ ...ringBase, transform: "translateX(-6px)", mixBlendMode: "screen", filter: `blur(${blur}px) saturate(1.5)`, opacity: 0.65 }} />
+      <div style={{ ...ringBase, transform: "translateX(7px)", mixBlendMode: "screen", filter: `blur(${blur}px) saturate(1.7)`, opacity: 0.6 }} />
+      <div style={{ ...ringBase, transform: "translateX(-7px)", mixBlendMode: "screen", filter: `blur(${blur}px) saturate(1.7)`, opacity: 0.6 }} />
 
       {/* main glass ring */}
-      <div style={{ ...ringBase, filter: `blur(${blur * 0.6}px) saturate(1.4) brightness(1.05)` }} />
+      <div style={{ ...ringBase, filter: `blur(${blur * 0.55}px) saturate(1.55) brightness(1.08)` }} />
 
-      {/* glossy highlight (upper-left) */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: "50%",
-          background: "radial-gradient(circle at 36% 26%, rgba(255,255,255,0.9), transparent 26%)",
-          WebkitMaskImage: RING_MASK,
-          maskImage: RING_MASK,
-          filter: "blur(5px)",
-          opacity: reveal,
-        }}
-      />
+      {/* tube shading: top-lit, bottom in shadow → reads as 3D volume */}
+      <div style={masked({ background: "linear-gradient(176deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 26%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.55) 100%)", mixBlendMode: "overlay", opacity: reveal })} />
+
+      {/* inner + outer rim definition */}
+      <div style={masked({ boxShadow: "inset 0 0 24px rgba(0,0,0,0.5)", opacity: reveal * 0.8 })} />
+
+      {/* broad glossy highlight (upper-left) */}
+      <div style={masked({ background: "radial-gradient(circle at 35% 24%, rgba(255,255,255,0.95), transparent 24%)", filter: "blur(6px)", opacity: reveal })} />
+
+      {/* tight specular hotspot */}
+      <div style={masked({ background: "radial-gradient(circle at 40% 20%, rgba(255,255,255,1), transparent 9%)", filter: "blur(2px)", opacity: reveal })} />
+
+      {/* secondary specular on the lower-right rim */}
+      <div style={masked({ background: "radial-gradient(circle at 70% 78%, rgba(255,255,255,0.6), transparent 12%)", filter: "blur(4px)", opacity: reveal * 0.8 })} />
     </div>
   );
 };

@@ -8,6 +8,7 @@ export type CompId =
   | "BrutalistTitle"
   | "CyberTitle"
   | "JapaneseTitle"
+  | "StyledTitle"
   | "Timeline"
   | "Assembly"
   | "Intro"
@@ -17,8 +18,9 @@ export const COMP_LABELS: { id: CompId; label: string; hint: string }[] = [
   { id: "PatternTitle", label: "Pattern Title", hint: "Single procedural title card" },
   { id: "SwissTitle", label: "Swiss Editorial", hint: "Rotated bars · red ground" },
   { id: "BrutalistTitle", label: "Brutalist", hint: "Giant type · concrete · mono" },
-  { id: "CyberTitle", label: "Cyber HUD", hint: "Neon radar · glowing readouts" },
+  { id: "CyberTitle", label: "Glass / Holographic", hint: "Iridescent glass torus" },
   { id: "JapaneseTitle", label: "Japanese Editorial", hint: "Hinomaru · vertical Mincho" },
+  { id: "StyledTitle", label: "Style Lab", hint: "Blend styles · full controls" },
 ]
 
 // The external Remotion render server (separate node process — `npm run server`).

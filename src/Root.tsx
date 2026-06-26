@@ -21,6 +21,7 @@ import { SwissTitle, swissTitleSchema, swissTitleDefaults } from "./compositions
 import { BrutalistTitle, brutalistTitleSchema, brutalistTitleDefaults } from "./compositions/BrutalistTitle";
 import { CyberTitle, cyberTitleSchema, cyberTitleDefaults } from "./compositions/CyberTitle";
 import { JapaneseTitle, japaneseTitleSchema, japaneseTitleDefaults } from "./compositions/JapaneseTitle";
+import { StyledTitle, styledTitleSchema, styledTitleDefaults } from "./compositions/StyledTitle";
 import { Promo, promoSchema, promoDefaults, PROMO_DURATION } from "./compositions/Promo";
 import { Architecture, architectureSchema, architectureDefaults, ARCH_DURATION } from "./compositions/Architecture";
 import { ProblemStatement, problemSchema, problemDefaults, PROBLEM_DURATION } from "./compositions/ProblemStatement";
@@ -228,6 +229,18 @@ export const RemotionRoot: React.FC = () => {
         height={CANVAS.height}
         schema={japaneseTitleSchema}
         defaultProps={japaneseTitleDefaults}
+      />
+
+      {/* Generic StyleSpec-driven renderer — powers Style Stacks (blends). */}
+      <Composition
+        id="StyledTitle"
+        component={StyledTitle as never}
+        durationInFrames={seconds(5)}
+        fps={FPS}
+        width={CANVAS.width}
+        height={CANVAS.height}
+        schema={styledTitleSchema}
+        defaultProps={styledTitleDefaults as never}
       />
 
       <Composition

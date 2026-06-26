@@ -8,6 +8,7 @@ import { Assembly, ASSEMBLY_DURATION } from "@/src/compositions/Assembly"
 import { Intro, INTRO_DURATION } from "@/src/compositions/Intro"
 import { Timeline, calculateTimelineDuration } from "@/src/compositions/Timeline"
 import { FourCardsGrid } from "@/src/compositions/FourCardsGrid"
+import { StyledTitle } from "@/src/compositions/StyledTitle"
 import { STYLE_COMPS, isStyleComp } from "./style-comps"
 
 /**
@@ -32,6 +33,8 @@ export function SafePlayer() {
     introProps,
     fourCardsProps,
     styleProps,
+    labContent,
+    labSpec,
     inputProps,
     duration,
     previewMode,
@@ -110,6 +113,25 @@ export function SafePlayer() {
         compositionHeight={1080}
         style={playerStyle}
         initialFrame={40}
+        controls
+        loop
+      />
+    )
+  }
+
+  // Style Lab — generic StyleSpec renderer (blended / fine-tuned spec).
+  if (comp === "StyledTitle") {
+    return (
+      <Player
+        acknowledgeRemotionLicense
+        component={StyledTitle as never}
+        inputProps={{ ...labContent, style: labSpec }}
+        durationInFrames={150}
+        fps={30}
+        compositionWidth={1920}
+        compositionHeight={1080}
+        style={playerStyle}
+        initialFrame={100}
         controls
         loop
       />

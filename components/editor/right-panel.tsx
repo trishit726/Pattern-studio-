@@ -13,6 +13,7 @@ import { useEditor } from "./editor-provider"
 import { BarSlider, ColorSwatch, Field } from "./primitives"
 import { MUSIC, PALETTE } from "./constants"
 import { isStyleComp } from "./style-comps"
+import { listStylePacks } from "@/src/style"
 import { Shape } from "@/src/lib/patterngen/PatternField"
 import { ANIM_TYPES } from "@/src/lib/patterngen/engine"
 
@@ -108,6 +109,7 @@ export function RightPanel() {
         <div className="flex flex-col gap-4 p-4">
           {e.isPattern ? <PatternControls /> : null}
           {isStyleComp(e.comp) ? <StyleControls /> : null}
+          {e.comp === "StyledTitle" ? <StyleLabControls /> : null}
           {e.comp === "Timeline" ? <TimelineControls /> : null}
           {e.comp === "Assembly" ? <AssemblyControls /> : null}
           {e.comp === "Intro" ? <IntroControls /> : null}
@@ -156,6 +158,107 @@ function StyleControls() {
         </Button>
       </div>
     </SectionCard>
+  )
+}
+
+const SLIDER =
+  "h-2 w-full cursor-pointer appearance-none rounded-full bg-secondary accent-primary"
+
+// Style Lab — Phase 6 (blend two styles) + Phase 7 (fine-tune the resolved spec).
+function StyleLabControls() {
+  const e = useEditor()
+  const packs = listStylePacks()
+  const s = e.labSpec
+  const patchColor = (k: "background" | "accent", v: string) =>
+    e.setLabSpec((p) => ({ ...p, color: { ...p.color, [k]: v } }))
+  const patchPalette = (i: number, v: string) =>
+    e.setLabSpec((p) => ({ ...p, color: { ...p.color, palette: p.color.palette.map((c, j) => (j === i ? v : c)) } }))
+  const patchType = (k: "case" | "tracking", v: unknown) =>
+    e.setLabSpec((p) => ({ ...p, typography: { ...p.typography, [k]: v } }))
+  const patchMotion = (k: "stagger" | "speed", v: number) =>
+    e.setLabSpec((p) => ({ ...p, motion: { ...p.motion, [k]: v } }))
+
+  return (
+    <>
+      <SectionCard title="Blend" hint="Stack two styles by weight — a new identity">
+        <div className="flex flex-col gap-4 px-4 pb-4">
+          <Field label="Style A">
+            <div className="flex flex-wrap gap-1.5">
+              {packs.map((p) => (
+                <Chip key={p.id} active={e.labA === p.id} onClick={() => e.setLabBlend(p.id, e.labB, e.labWeight)}>
+                  {p.label}
+                </Chip>
+              ))}
+            </div>
+          </Field>
+          <Field label={`Mix — ${e.labWeight}% A · ${100 - e.labWeight}% B`}>
+            <input type="range" min={0} max={100} value={e.labWeight} onChange={(ev) => e.setLabBlend(e.labA, e.labB, Number(ev.target.value))} className={SLIDER} />
+          </Field>
+          <Field label="Style B">
+            <div className="flex flex-wrap gap-1.5">
+              {packs.map((p) => (
+                <Chip key={p.id} active={e.labB === p.id} onClick={() => e.setLabBlend(e.labA, p.id, e.labWeight)}>
+                  {p.label}
+                </Chip>
+              ))}
+            </div>
+          </Field>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Content">
+        <div className="flex flex-col gap-3 px-4 pb-4">
+          <Field label="Headline">
+            <Input value={e.labContent.headline} onChange={(ev) => e.setLabContentField("headline", ev.target.value)} className="h-9 text-sm" />
+          </Field>
+          <Field label="Secondary">
+            <Input value={e.labContent.secondary} onChange={(ev) => e.setLabContentField("secondary", ev.target.value)} className="h-9 text-sm" />
+          </Field>
+          <Button variant="outline" size="sm" className="w-fit" onClick={e.reseedLab}>
+            Reseed
+          </Button>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Appearance" hint="Fine-tune the resolved StyleSpec">
+        <div className="flex flex-col gap-4 px-4 pb-4">
+          <Field label="Background">
+            <div className="flex items-center gap-2">
+              <ColorSwatch color={String(s.color.background)} onChange={(v) => patchColor("background", v)} />
+              <Input value={String(s.color.background)} onChange={(ev) => patchColor("background", ev.target.value)} className="h-9 font-mono text-xs" />
+            </div>
+          </Field>
+          <Field label="Accent">
+            <ColorSwatch color={s.color.accent} onChange={(v) => patchColor("accent", v)} />
+          </Field>
+          <Field label="Palette">
+            <div className="flex flex-wrap gap-1.5">
+              {s.color.palette.map((c, i) => (
+                <ColorSwatch key={i} color={c} onChange={(v) => patchPalette(i, v)} />
+              ))}
+            </div>
+          </Field>
+          <Field label="Headline case">
+            <div className="flex gap-1.5">
+              {(["upper", "lower", "as-is"] as const).map((c) => (
+                <Chip key={c} active={s.typography.case === c} onClick={() => patchType("case", c)}>
+                  {c}
+                </Chip>
+              ))}
+            </div>
+          </Field>
+          <Field label="Tracking" value={s.typography.tracking}>
+            <input type="range" min={-8} max={12} step={0.5} value={s.typography.tracking} onChange={(ev) => patchType("tracking", Number(ev.target.value))} className={SLIDER} />
+          </Field>
+          <Field label="Stagger" value={s.motion.stagger.toFixed(1)}>
+            <input type="range" min={0} max={5} step={0.1} value={s.motion.stagger} onChange={(ev) => patchMotion("stagger", Number(ev.target.value))} className={SLIDER} />
+          </Field>
+          <Field label="Speed" value={s.motion.speed.toFixed(1)}>
+            <input type="range" min={0.4} max={2} step={0.1} value={s.motion.speed} onChange={(ev) => patchMotion("speed", Number(ev.target.value))} className={SLIDER} />
+          </Field>
+        </div>
+      </SectionCard>
+    </>
   )
 }
 
