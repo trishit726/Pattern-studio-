@@ -7,8 +7,8 @@ import React from "react";
 import { AbsoluteFill, Audio, Img, Sequence, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate, Easing } from "remotion";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
-import { loadFont as loadAnton } from "@remotion/google-fonts/Anton";
 import { loadFont as loadJP } from "@remotion/google-fonts/ShipporiMincho";
+import { resolveStyle, loadStyleFont } from "../style";
 import { PatternField } from "../lib/patterngen/PatternField";
 import { FloodField } from "../lib/patterngen/FloodField";
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
@@ -16,7 +16,13 @@ import { GrainOverlay } from "../lib/textures";
 import type { TitleRect, AnimType } from "../lib/patterngen/engine";
 
 const resolveSrc = (s: string) => (/^(https?:|blob:|data:)/.test(s) ? s : staticFile(s));
-const { fontFamily: ANTON } = loadAnton("normal", { weights: ["400"], subsets: ["latin"] });
+
+// Phase 1 of the Style Engine refactor: the renderer sources its font + texture
+// from the resolved "default" StyleSpec instead of inline constants. The default
+// pack encodes today's exact values, so output stays pixel-identical. (See
+// docs/style-engine-architecture.md.)
+const STYLE = resolveStyle("default");
+const ANTON = loadStyleFont(STYLE.typography.headlineFont); // Anton, weight 400
 const { fontFamily: JP } = loadJP("normal", { weights: ["500"], subsets: ["latin"] });
 
 const titleSchema = z.object({
@@ -265,6 +271,9 @@ export const PatternTitle: React.FC<PatternTitleProps> = ({
     begin: 4,
     stagger,
     enabledAnims: shapes as AnimType[],
+    // Phase 3: geometry now flows through motifs. The default style resolves to
+    // the legacy `patterngen16` scatter motif → pixel-identical output.
+    motifs: STYLE.visualLanguage.motifs,
   };
 
   return (
@@ -317,7 +326,7 @@ export const PatternTitle: React.FC<PatternTitleProps> = ({
         </AbsoluteFill>
       </AbsoluteFill>
 
-      <GrainOverlay name="pattern" intensity={0.1} vignette dark />
+      <GrainOverlay name="pattern" intensity={STYLE.texture.intensity} vignette={STYLE.texture.vignette} dark />
     </AbsoluteFill>
   );
 };
