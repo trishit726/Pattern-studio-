@@ -158,6 +158,53 @@ export const PatternField: React.FC<{
           );
         }
 
+        if (el.kind === "bar") {
+          const p = prog(el.seedPhase);
+          if (p <= 0) return null;
+          return (
+            <div
+              key={el.id}
+              style={{
+                position: "absolute",
+                left: el.rect.x,
+                top: el.rect.y,
+                width: el.rect.w,
+                height: el.rect.h,
+                background: el.color,
+                transform: `rotate(${el.rotation}deg)`,
+                transformOrigin: "left center",
+                clipPath: clipFor(el.clipSide, p),
+                WebkitClipPath: clipFor(el.clipSide, p),
+              }}
+            />
+          );
+        }
+
+        if (el.kind === "disc" || el.kind === "ring") {
+          const p = prog(el.seedPhase);
+          if (p <= 0) return null;
+          const isRing = el.kind === "ring";
+          return (
+            <div
+              key={el.id}
+              style={{
+                position: "absolute",
+                left: el.cx - el.r,
+                top: el.cy - el.r,
+                width: el.r * 2,
+                height: el.r * 2,
+                borderRadius: "50%",
+                ...(isRing
+                  ? { border: `${el.thickness}px solid ${el.color}`, background: "transparent" }
+                  : { background: el.color }),
+                opacity: p,
+                transform: `scale(${0.7 + p * 0.3})`,
+                transformOrigin: "center",
+              }}
+            />
+          );
+        }
+
         // el.kind === "dot"
         const appear = clamp01((f - el.blinkPhase * SPREAD) / 8);
         if (appear <= 0) return null;

@@ -10,6 +10,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { loadFont as loadAnton } from "@remotion/google-fonts/Anton"
 import { loadFont as loadShippori } from "@remotion/google-fonts/ShipporiMincho"
+import { loadFont as loadArchivoBlack } from "@remotion/google-fonts/ArchivoBlack"
+import { loadFont as loadInter } from "@remotion/google-fonts/Inter"
+import { loadFont as loadSpaceMono } from "@remotion/google-fonts/SpaceMono"
+import { loadFont as loadSpaceGrotesk } from "@remotion/google-fonts/SpaceGrotesk"
 import type { FontRef } from "./types"
 
 type Loader = (
@@ -21,6 +25,10 @@ type Loader = (
 const LOADERS: Record<string, Loader> = {
   Anton: loadAnton as Loader,
   ShipporiMincho: loadShippori as Loader,
+  ArchivoBlack: loadArchivoBlack as Loader,
+  Inter: loadInter as Loader,
+  SpaceMono: loadSpaceMono as Loader,
+  SpaceGrotesk: loadSpaceGrotesk as Loader,
 }
 
 const cache = new Map<string, string>()

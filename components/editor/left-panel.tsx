@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Trash2,
   Sparkles,
+  Palette,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,10 @@ import { COMP_LABELS, type CompId } from "./constants"
 
 const COMP_ICONS: Record<CompId, React.ComponentType<{ className?: string }>> = {
   PatternTitle: LayoutTemplate,
+  SwissTitle: Palette,
+  BrutalistTitle: Palette,
+  CyberTitle: Palette,
+  JapaneseTitle: Palette,
   Timeline: Layers,
   Intro: FilmIcon,
   Assembly: Clapperboard,

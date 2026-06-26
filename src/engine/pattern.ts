@@ -11,6 +11,9 @@ import type { MotifPreference } from "../style/types"
 import { motifRegistry } from "./motifs/registry"
 import type { MotifContext, MotifElement } from "./motifs/types"
 import "./motifs/patterngen16" // register the legacy scatter motif
+import "./motifs/diagonalBars" // register the Swiss bar motif
+import "./motifs/radarRing" // register the Cyber HUD radar motif
+import "./motifs/hinomaru" // register the Japanese disc motif
 
 /** Default when a caller supplies no motifs — preserves current behaviour. */
 export const DEFAULT_MOTIFS: MotifPreference[] = [{ id: "patterngen16", weight: 1 }]

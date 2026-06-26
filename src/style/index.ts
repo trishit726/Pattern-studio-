@@ -6,7 +6,10 @@
 
 // ── Register built-in packs (import for side effects) ───────────────────────
 import "./packs/default"
-// Later phases register: swiss, brutalist, cyberHud, japaneseEditorial.
+import "./packs/swiss"
+import "./packs/brutalist"
+import "./packs/cyberHud"
+import "./packs/japaneseEditorial"
 
 export * from "./types"
 export { resolveStyle, DEFAULT_STYLE_ID } from "./resolve"

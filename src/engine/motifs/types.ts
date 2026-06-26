@@ -42,6 +42,37 @@ export type MotifElement =
       blinkPhase: number
       blinkSpeed: number
     }
+  | {
+      // A rotated solid bar — the Swiss building block. Wipes in along its length.
+      kind: "bar"
+      id: string
+      rect: Rect
+      color: string
+      rotation: number // degrees
+      clipSide: ClipSide
+      seedPhase: number
+    }
+  | {
+      // A filled circle — the Japanese hinomaru / stamp. Scales in.
+      kind: "disc"
+      id: string
+      cx: number
+      cy: number
+      r: number
+      color: string
+      seedPhase: number
+    }
+  | {
+      // A stroked ring — the Cyber HUD radar. Scales in.
+      kind: "ring"
+      id: string
+      cx: number
+      cy: number
+      r: number
+      color: string
+      thickness: number
+      seedPhase: number
+    }
 
 /** Everything a motif needs to generate within a composition. */
 export interface MotifContext {
