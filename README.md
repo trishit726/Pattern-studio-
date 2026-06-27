@@ -1,28 +1,27 @@
 # Pattern Studio
 
-**Describe your brand in a sentence — get a broadcast‑quality animated title, rendered to MP4, in seconds.**
+**Design a broadcast‑quality animated title in your browser — edit every part of it — and export a real MP4, in seconds.**
 
-Pattern Studio is an AI‑assisted motion‑graphics tool. You type a one‑line description of a brand, product, or topic; **Google Gemini** designs a complete title scene — headline, palette, geometric pattern, and layout; you tweak anything in a live editor; and you export a finished MP4 with one click. It puts the kind of bold, editorial title animation that normally needs a motion designer into the hands of anyone who can type a sentence.
-
-> Built for **UOE Summer of Code 2026** · Theme: **Open Innovation**
+Pattern Studio is a motion‑graphics studio for creators. A deterministic, seeded **pattern engine** composes bold editorial title cards — heavy condensed type, a brand palette, and scattered geometric shapes — which you tweak in a **live editor** and export to **MP4 / WebM / GIF** in any aspect ratio. It puts the kind of title animation that normally needs a motion designer and After Effects right into the browser. *(Want a head start? Describe a brand in a sentence and it drafts an editable scene for you.)*
 
 ---
 
 ## The problem
 
-High‑end motion graphics are a bottleneck for creators, founders, and small teams. A single animated brand title can cost hundreds of dollars or hours in After Effects, and the skills don't transfer to non‑designers. Template tools look generic; pro tools are too hard. *(There's a full 70s narrated breakdown in the [Problem statement video](public/examples/pattern-studio-problem.mp4).)*
+High‑end motion graphics are a bottleneck for creators, founders, and small teams. A single animated brand title can cost hundreds of dollars or hours in After Effects, and the skills don't transfer to non‑designers. Template tools look generic; pro tools are too hard. *(There's a full ~70s narrated breakdown in the [Problem statement video](public/examples/pattern-studio-problem.mp4).)*
 
 ## The solution
 
-Pattern Studio collapses that to: **prompt → editable scene → MP4.**
+Pattern Studio collapses that to: **design → editable scene → MP4.**
 
-- **AI brand‑from‑a‑prompt** — Google Gemini acts as a brand designer: from your description it returns a full scene (title text, sub‑label, colour palette, which of 16 geometric shapes to scatter, density/proximity, and layout) as validated, structured data that drops straight into the editor.
-- **AI script‑writer** — one click writes a voiceover script for your demo/brand video.
-- **Live editor** — drag titles, adjust density/proximity/stagger, pick shapes and brand colours, give **each title box its own colour**, add music/SFX, toggle a grid, save/load scenes as JSON. Everything the AI generates stays fully editable.
+- **A procedural pattern engine** — a deterministic, seeded generator scatters 16 kinds of geometric shape around heavy condensed type and drives the animation; the same scene renders identically every time, so the live preview and the final MP4 match frame‑for‑frame.
+- **Live editor** — drag titles, adjust density/proximity/stagger, pick shapes and brand colours, give **each title box its own colour**, add music/SFX, toggle a grid, save/load scenes.
 - **Two motion styles, deeply controllable** — *scatter* (shapes cluster around the title) or a *flood* intro with **6 fill styles** (random, sweep, radial, rows, columns, edges‑in), solid‑or‑mixed colour, and speed / tile‑size / shape sliders, plus stays‑or‑clears.
 - **Audio‑reactive** — shapes and dots pulse in time with the music.
-- **Export any aspect ratio** — render to **16:9, 3:2, 4:3, 5:4, 1:1, 4:5, or 9:16**; the server renders at full 1080p, then center‑crops to your ratio with ffmpeg (the design stays intact).
-- **One‑click MP4** — a local render server bundles the scene with [Remotion](https://www.remotion.dev) and renders a real H.264 MP4.
+- **Export any aspect ratio, any format** — render to **16:9, 3:2, 4:3, 5:4, 1:1, 4:5, or 9:16** as **MP4, WebM, or GIF**; the server renders once at full 1080p, then center‑crops and transcodes each output with ffmpeg (the design stays intact).
+- **One‑click export** — a render server bundles the scene with [Remotion](https://www.remotion.dev) and renders a real H.264 MP4.
+- **Your work is saved** — scenes and render history persist per user in **DynamoDB**, so you can come back to anything you've made.
+- **Optional fast start** — describe a brand in a sentence and the studio drafts a starting scene (title, palette, layout, shapes) straight into the editor, fully editable from there.
 
 ---
 
@@ -34,12 +33,8 @@ Every film below was produced in the tool itself (Remotion compositions in the s
 |---|---|
 | 🎬 [**Promo**](public/examples/pattern-studio-promo.mp4) | ~37s narrated product film — prompt → scene → render |
 | ❓ [**Problem statement**](public/examples/pattern-studio-problem.mp4) | ~71s narrated explainer of the problem we solve |
-| 🎞️ [**Examples montage**](public/examples/pattern-studio-examples.mp4) | ~28s — six AI‑designed brands, each shown with its prompt |
-| 🏗️ [**Architecture explainer**](public/examples/pattern-studio-architecture.mp4) | ~34s — how the editor → server → Gemini → Remotion pipeline works |
-
-A browsable scene gallery is also served at `/examples/index.html` when the app is running.
-
-**Typical flow:** type *“Ember — a warm, rustic coffee roaster”* → **Generate Scene** → the editor fills with an on‑brand title, palette, and scattered shapes → drag the title, tweak sliders, pick a flood style → choose an aspect ratio → **Render** → download the MP4.
+| 🎞️ [**Examples montage**](public/examples/pattern-studio-examples.mp4) | six brands designed in the studio, each shown with its one‑line brief |
+| 🏗️ [**Architecture explainer**](public/examples/pattern-studio-architecture.mp4) | how the editor → API → AI → Remotion pipeline works |
 
 ---
 
@@ -58,20 +53,21 @@ Animated `.mp4` versions of all six are in [`public/examples/`](public/examples)
 
 ```mermaid
 flowchart LR
-  U[You: one-line brand prompt] --> APP[Pattern Studio editor<br/>React + Vite :5173]
-  APP -- POST /generate, /script --> SRV[Render server<br/>Express :3001]
-  SRV -- generate / script --> AI[Google Gemini<br/>provider-agnostic: also Claude via Vertex / Anthropic]
-  AI -- structured scene / script --> SRV
-  SRV --> APP
+  U[You: one-line brand prompt] --> APP[Pattern Studio editor<br/>Next.js + React 19]
+  APP -- /api/generate, /api/script --> AI[AI model<br/>Gemini default; also Claude via Vertex / Anthropic]
+  AI -- structured scene / script --> APP
+  APP -- /api/save, /api/load, /api/list --> DDB[(DynamoDB<br/>single-table: scenes + render history)]
   APP -- live preview --> PLAYER[Remotion Player]
-  APP -- POST /render --> SRV
-  SRV -- bundle + render + crop --> REMOTION[Remotion renderer + ffmpeg]
-  REMOTION --> MP4[(out/*.mp4)]
+  APP -- POST /render --> SRV[Render server<br/>Express + Remotion]
+  SRV -- bundle + render + crop/transcode --> FF[Remotion renderer + ffmpeg]
+  FF --> OUT[(out/*.mp4 · *.webm · *.gif)]
+  SRV -- /api/log-render --> DDB
 ```
 
-- **Editor** (`app/`) — React + Remotion Player; designs the scene and previews it live.
-- **Render server** (`server/render-server.mjs`) — Express backend. Holds all **AI calls server‑side** (keys/credentials never reach the browser), renders MP4s with `@remotion/renderer`, and crops to the chosen aspect ratio with ffmpeg.
-- **Compositions** (`src/compositions/`) — the animated graphics (titles + the four demo films), defined in React + [Remotion](https://www.remotion.dev) with Zod‑typed props.
+- **Editor + API** (`app/`, `components/`) — Next.js 16 + React 19 with the Remotion Player. API routes hold all **AI calls server‑side** (keys/credentials never reach the browser) and read/write scenes and render history in DynamoDB.
+- **Data layer** (`app/lib/db.ts`) — a **DynamoDB single‑table design**: every user owns one item collection, holding both saved scenes and render‑history events, retrievable with single‑partition Queries (no Scans). A sparse GSI lists a user's scenes by recency.
+- **Render server** (`server/render-server.mjs`) — Express backend that renders MP4s with `@remotion/renderer`, then derives every aspect ratio and format (MP4/WebM/GIF) from one base render with ffmpeg.
+- **Compositions** (`src/compositions/`) — the animated graphics (titles + the demo films), defined in React + [Remotion](https://www.remotion.dev) with Zod‑typed props.
 - **Pattern engine** (`src/lib/patterngen/`) — a deterministic, seeded generator that scatters shapes/squares/dots around the title, plus the flood‑grid intro (see [Attribution](#attribution)).
 
 ---
@@ -80,9 +76,10 @@ flowchart LR
 
 | Area | Tech |
 | --- | --- |
-| Video / animation | Remotion 4, React 19, TypeScript |
-| Editor | Vite 8, `@remotion/player`, `@remotion/media-utils` (audio‑reactive) |
-| Backend | Node, Express 5, `@remotion/bundler` + `@remotion/renderer`, ffmpeg |
+| Frontend / editor | Next.js 16, React 19, TypeScript, Tailwind 4, Radix UI |
+| Video / animation | Remotion 4, `@remotion/player`, `@remotion/media-utils` (audio‑reactive) |
+| Render backend | Node, Express 5, `@remotion/bundler` + `@remotion/renderer`, ffmpeg |
+| Database | **AWS DynamoDB** (single‑table; `@aws-sdk/lib-dynamodb`) |
 | AI | **Google Gemini** (`gemini-2.5-flash`) via Google AI Studio (`@google/genai`); a provider‑agnostic layer also runs Claude on **Vertex AI** / the **Anthropic API** |
 | Schemas / validation | Zod 4 |
 | Demo videos | Rendered in Remotion; free **Edge neural TTS** voiceovers; **ffmpeg** for aspect‑ratio crops |
@@ -114,34 +111,67 @@ GEMINI_MODEL=gemini-2.5-flash
 # ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+**Connect DynamoDB** (for save / load / render history) in `.env`:
+
+```bash
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DYNAMODB_TABLE_NAME=pattern-studio
+```
+
+```bash
+npm run setup:db          # creates the single table + GSI1 if they don't exist
+```
+
 **Run it** (two terminals):
 
 ```bash
-npm run server     # render + AI backend → http://localhost:3001
-npm run app        # editor → http://localhost:5173
+npm run dev        # editor + API → http://localhost:3000
+npm run server     # MP4 render backend → http://localhost:3001
 ```
 
-Then open the editor, type a brand description in **✨ AI Brand**, hit **Generate Scene**, edit, pick an aspect ratio, and **Render**.
+Then open the editor, type a brand description in **✨ AI Brand**, hit **Generate Scene**, edit, pick an aspect ratio/format, and **Render**.
 
 **Other commands:**
 
 ```bash
-npm run studio -- --port=3999    # Remotion Studio (browse/scrub all compositions)
+npm run studio                   # Remotion Studio (browse/scrub all compositions)
 npm run typecheck                # tsc --noEmit
-npx remotion render PatternTitle out/title.mp4 --codec=h264 --crf=18 --port=4001
-node tools/make-examples.mjs     # regenerate the example stills + gallery
-node tools/make-voiceover.mjs promo   # (re)generate a voiceover (promo|arch|problem|tutorial)
+npm run build                    # production build (Next.js)
+npx remotion render PatternTitle out/title.mp4 --codec=h264 --crf=18
 ```
 
 ---
 
 ## How the AI works
 
-`POST /generate` sends your prompt to the model (Google Gemini by default) with a system prompt that frames it as a brand/motion designer and specifies an exact JSON shape. The server then **validates and clamps every field** (coordinates to 0–1, sizes and slider ranges to their bounds, shape ids to the known set, colours to valid hex) before returning it — the model's output is never trusted blindly. The result maps 1:1 onto the `PatternTitle` composition's Zod schema, so it renders immediately and stays editable.
+`POST /api/generate` sends your prompt to the model (Google Gemini by default) with a system prompt that frames it as a brand/motion designer and specifies an exact JSON shape. The route then **validates and clamps every field** (coordinates to 0–1, sizes and slider ranges to their bounds, shape ids to the known set, colours to valid hex) before returning it — the model's output is never trusted blindly. The result maps 1:1 onto the `PatternTitle` composition's Zod schema, so it renders immediately and stays editable.
 
-`POST /script` returns a short, structured voiceover script (hook → problem → solution → CTA) for the demo video. `POST /render` renders the scene to an MP4 and, for non‑16:9 ratios, center‑crops the result with ffmpeg.
+`POST /api/script` returns a short, structured voiceover script (hook → problem → solution → CTA) for the demo video. `POST /render` (render server) renders the scene to an MP4 and, for non‑16:9 ratios or other formats, derives the output with ffmpeg; the render is logged to DynamoDB.
 
 Both AI routes run on whichever provider `.env` selects — Gemini, Claude on Vertex, or the Anthropic API — a one‑line change.
+
+---
+
+## Why render needs its own server
+
+The editor, AI routes, and DynamoDB all run happily on **Vercel**. **MP4 rendering does not** — and can't. Remotion's renderer launches **headless Chromium + ffmpeg**, runs for tens of seconds, and writes files to disk: that exceeds the time, size, and filesystem limits of Vercel (and any "edge" runtime). So rendering lives in a separate long‑running process, `server/render-server.mjs`.
+
+- **Local / demo:** run `npm run server` and use the app on the same machine — the editor calls the render server at `http://localhost:3001`.
+- **Production:** host the render server on a long‑running box (an **AWS EC2** instance, or the serverless **[Remotion Lambda](https://www.remotion.dev/docs/lambda)** → S3 path), then set `NEXT_PUBLIC_RENDER_SERVER` to its URL in Vercel and redeploy. The editor reads that env var (`components/editor/constants.ts`); everything else is unchanged.
+
+Generate / edit / save all work on the deployed site today; only the final MP4 export needs the render server reachable.
+
+## Why DynamoDB
+
+Pattern Studio uses a **single‑table design**: one table holds every entity type. Each user owns one *item collection* (all items sharing their `USER#<id>` partition key), so:
+
+- a user's scenes and render history live together and come back in **one single‑partition Query** — never a table Scan;
+- **ownership is enforced by the key**, not application code — a caller can only ever address items inside their own partition;
+- a **sparse GSI** lists scenes by most‑recently‑edited, while render events omit the index attributes so they never cost anything on it.
+
+See `app/lib/db.ts` for the full access‑pattern documentation.
 
 ---
 
