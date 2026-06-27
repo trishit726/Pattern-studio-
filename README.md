@@ -25,6 +25,21 @@ Pattern Studio collapses that to: **design → editable scene → MP4.**
 
 ---
 
+## See it in action
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/trishit726/Pattern-studio-@media-v2/assets/demo-one-piece-reveal.gif" width="820" alt="Pattern Studio — a title designed in the studio">
+</p>
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/trishit726/Pattern-studio-@media-v2/assets/demo-kung-fu-panda.gif" width="405" alt="Kung Fu Panda scene">
+  <img src="https://cdn.jsdelivr.net/gh/trishit726/Pattern-studio-@media-v2/assets/demo-katana.gif" width="405" alt="Katana scene">
+</p>
+
+All six animated demos (One Piece, Kung Fu Panda, Katana, Backrooms, the flood intro…) live in [`assets/`](assets), with ready‑to‑paste embed snippets in [`DEVPOST_MEDIA.md`](DEVPOST_MEDIA.md).
+
+---
+
 ## Videos — all made *with* Pattern Studio
 
 Every film below was produced in the tool itself (Remotion compositions in the same editorial style), with free neural voiceovers:
@@ -166,6 +181,11 @@ Generate / edit / save all work on the deployed site today; only the final MP4 e
 ## Why DynamoDB
 
 Pattern Studio uses a **single‑table design**: one table holds every entity type. Each user owns one *item collection* (all items sharing their `USER#<id>` partition key), so:
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/trishit726/Pattern-studio-@media-v2/assets/diagram-dynamodb.png" width="900" alt="DynamoDB single-table design">
+</p>
+
 
 - a user's scenes and render history live together and come back in **one single‑partition Query** — never a table Scan;
 - **ownership is enforced by the key**, not application code — a caller can only ever address items inside their own partition;
