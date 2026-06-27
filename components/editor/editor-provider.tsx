@@ -18,6 +18,7 @@ import {
   type SceneTransition,
 } from "@/src/compositions/Timeline"
 import { fourCardsDefaults, type FourCardsProps } from "@/src/compositions/FourCardsGrid"
+import { STYLE_COMPS, isStyleComp } from "./style-comps"
 import { ANIM_TYPES } from "@/src/lib/patterngen/engine"
 import {
   MUSIC,
@@ -61,6 +62,10 @@ interface EditorContextValue {
   fourCardsProps: FourCardsProps
   setFourCardsProps: React.Dispatch<React.SetStateAction<FourCardsProps>>
   updateCard: (idx: number, patch: Partial<FourCardsProps["cards"][number]>) => void
+  // Style-Engine compositions (one prop bag per comp id)
+  styleProps: Record<string, Record<string, any>>
+  setStyleProp: (compId: string, key: string, value: unknown) => void
+  reseedStyle: (compId: string) => void
   // duration / selection
   duration: number
   setDuration: React.Dispatch<React.SetStateAction<number>>
@@ -165,6 +170,15 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [assemblyProps, setAssemblyProps] = useState<AssemblyProps>(assemblyDefaults)
   const [introProps, setIntroProps] = useState<IntroProps>(introDefaults)
   const [fourCardsProps, setFourCardsProps] = useState<FourCardsProps>(fourCardsDefaults)
+
+  // Style-Engine compositions: one editable prop bag per comp id.
+  const [styleProps, setStyleProps] = useState<Record<string, Record<string, any>>>(() =>
+    Object.fromEntries(Object.entries(STYLE_COMPS).map(([id, e]) => [id, { ...e.defaults }])),
+  )
+  const setStyleProp = (compId: string, key: string, value: unknown) =>
+    setStyleProps((p) => ({ ...p, [compId]: { ...p[compId], [key]: value } }))
+  const reseedStyle = (compId: string) =>
+    setStyleProps((p) => ({ ...p, [compId]: { ...p[compId], seed: Math.floor(Math.random() * 1e9) } }))
 
   const updateCard = (idx: number, patch: Partial<FourCardsProps["cards"][number]>) => {
     setFourCardsProps((p) => ({
@@ -578,6 +592,8 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         body = { composition: "Timeline", props: { scenes: clean, music: timelineMusic } }
       } else if (comp === "FourCardsGrid") {
         body = { composition: "FourCardsGrid", props: fourCardsProps }
+      } else if (isStyleComp(comp)) {
+        body = { composition: comp, props: styleProps[comp], duration: STYLE_COMPS[comp].durationInFrames }
       } else {
         let imageData: string | undefined, imageExt: string | undefined
         if (imageFile) {
@@ -664,6 +680,9 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     fourCardsProps,
     setFourCardsProps,
     updateCard,
+    styleProps,
+    setStyleProp,
+    reseedStyle,
     duration,
     setDuration,
     selectedId,

@@ -12,6 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useEditor } from "./editor-provider"
 import { BarSlider, ColorSwatch, Field } from "./primitives"
 import { MUSIC, PALETTE } from "./constants"
+import { isStyleComp } from "./style-comps"
 import { Shape } from "@/src/lib/patterngen/PatternField"
 import { ANIM_TYPES } from "@/src/lib/patterngen/engine"
 
@@ -106,6 +107,7 @@ export function RightPanel() {
       <ScrollArea className="min-h-0 flex-1 scroll-thin">
         <div className="flex flex-col gap-4 p-4">
           {e.isPattern ? <PatternControls /> : null}
+          {isStyleComp(e.comp) ? <StyleControls /> : null}
           {e.comp === "Timeline" ? <TimelineControls /> : null}
           {e.comp === "Assembly" ? <AssemblyControls /> : null}
           {e.comp === "Intro" ? <IntroControls /> : null}
@@ -114,6 +116,104 @@ export function RightPanel() {
         </div>
       </ScrollArea>
     </aside>
+  )
+}
+
+// Generic controls for the Style-Engine compositions: edit each text prop and
+// reseed the procedural layout/motifs.
+function StyleControls() {
+  const e = useEditor()
+  const comp = e.comp
+  const props = e.styleProps[comp] ?? {}
+
+  return (
+    <SectionCard title="Style" hint="Procedural — edit text, then reseed for a new arrangement">
+      <div className="flex flex-col gap-4 px-4 pb-4">
+        {Object.entries(props).map(([key, val]) => {
+          if (key === "seed") return null
+
+          // Boolean → on/off chip.
+          if (typeof val === "boolean") {
+            return (
+              <Field key={key} label={key}>
+                <Chip active={val} onClick={() => e.setStyleProp(comp, key, !val)}>
+                  {val ? "On" : "Off"}
+                </Chip>
+              </Field>
+            )
+          }
+
+          // Number → numeric input (keeps the value typed for the player).
+          if (typeof val === "number") {
+            return (
+              <Field key={key} label={key} value={val}>
+                <Input
+                  type="number"
+                  value={val}
+                  onChange={(ev) => e.setStyleProp(comp, key, Number(ev.target.value))}
+                  className="h-9 text-sm"
+                />
+              </Field>
+            )
+          }
+
+          // String array (e.g. metaLines) → one item per line.
+          if (Array.isArray(val)) {
+            return (
+              <Field key={key} label={key}>
+                <Textarea
+                  value={val.join("\n")}
+                  rows={Math.min(5, Math.max(2, val.length))}
+                  onChange={(ev) => e.setStyleProp(comp, key, ev.target.value.split("\n"))}
+                  className="resize-none text-sm"
+                />
+              </Field>
+            )
+          }
+
+          const str = String(val)
+
+          // Colour (key ends in "Color", or value is a hex) → swatch + hex input.
+          if (/Color$/.test(key) || /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(str)) {
+            return (
+              <Field key={key} label={key}>
+                <div className="flex items-center gap-2">
+                  <ColorSwatch color={str} onChange={(v) => e.setStyleProp(comp, key, v)} />
+                  <Input
+                    value={str}
+                    onChange={(ev) => e.setStyleProp(comp, key, ev.target.value)}
+                    className="h-9 font-mono text-xs"
+                  />
+                </div>
+              </Field>
+            )
+          }
+
+          // Plain string.
+          return (
+            <Field key={key} label={key}>
+              {str.length > 38 ? (
+                <Textarea
+                  value={str}
+                  rows={2}
+                  onChange={(ev) => e.setStyleProp(comp, key, ev.target.value)}
+                  className="resize-none text-sm"
+                />
+              ) : (
+                <Input
+                  value={str}
+                  onChange={(ev) => e.setStyleProp(comp, key, ev.target.value)}
+                  className="h-9 text-sm"
+                />
+              )}
+            </Field>
+          )
+        })}
+        <Button variant="outline" size="sm" className="w-fit" onClick={() => e.reseedStyle(comp)}>
+          Reseed layout
+        </Button>
+      </div>
+    </SectionCard>
   )
 }
 

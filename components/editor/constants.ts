@@ -2,10 +2,17 @@ import type { TitleItem, PatternTitleProps } from "@/src/compositions/PatternTit
 
 export const MUSIC = "music/lofi.mp3" // CC0 lo-fi bed (HoliznaCC0) in public/music/
 
-export type CompId = "PatternTitle" | "Timeline" | "Assembly" | "Intro" | "FourCardsGrid"
+export type CompId =
+  | "PatternTitle"
+  | "SwissPoster"
+  | "Timeline"
+  | "Assembly"
+  | "Intro"
+  | "FourCardsGrid"
 
 export const COMP_LABELS: { id: CompId; label: string; hint: string }[] = [
   { id: "PatternTitle", label: "Pattern Title", hint: "Single procedural title card" },
+  { id: "SwissPoster", label: "Swiss Poster", hint: "Armature · crossing axes" },
 ]
 
 // The external Remotion render server (separate node process — `npm run server`).

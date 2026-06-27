@@ -17,6 +17,7 @@ import { CANVAS, FPS, seconds } from "./config";
 import { Assembly, assemblySchema, ASSEMBLY_DURATION } from "./compositions/Assembly";
 import { Intro, introSchema, introDefaults, INTRO_DURATION } from "./compositions/Intro";
 import { PatternTitle, patternTitleSchema } from "./compositions/PatternTitle";
+import { SwissPoster, swissPosterSchema, SWISS_POSTER_DURATION } from "./compositions/SwissPoster";
 import { Promo, promoSchema, promoDefaults, PROMO_DURATION } from "./compositions/Promo";
 import { Architecture, architectureSchema, architectureDefaults, ARCH_DURATION } from "./compositions/Architecture";
 import { ProblemStatement, problemSchema, problemDefaults, PROBLEM_DURATION } from "./compositions/ProblemStatement";
@@ -35,11 +36,6 @@ import { KineticText, kineticTextSchema } from "./compositions/KineticText";
 import { TransparentOverlay, transparentOverlaySchema } from "./compositions/TransparentOverlay";
 import { FourCardsGrid, fourCardsSchema, fourCardsDefaults } from "./compositions/FourCardsGrid";
 import { SoundShowcase, soundShowcaseSchema } from "./compositions/SoundShowcase";
-import { EndCard, endCardSchema, endCardDefaults } from "./compositions/EndCard";
-import { StatCountUp, statCountUpSchema, statCountUpDefaults } from "./compositions/StatCountUp";
-import { QuoteCard, quoteCardSchema, quoteCardDefaults } from "./compositions/QuoteCard";
-import { VerticalPromo, verticalPromoSchema, verticalPromoDefaults } from "./compositions/VerticalPromo";
-import { CaptionedClip, captionedClipSchema, captionedClipDefaults } from "./compositions/CaptionedClip";
 
 import { SolutionArchitecture, solutionArchitectureSchema, SA_DURATION } from "./compositions/SolutionArchitecture";
 
@@ -183,6 +179,40 @@ export const RemotionRoot: React.FC = () => {
           cameraAmount: 5,
           titleAnim: "wipe",
           underline: false,
+        }}
+      />
+
+      {/* SwissPoster — standalone hand-built Swiss poster (not on the Style Engine). */}
+      <Composition
+        id="SwissPoster"
+        component={SwissPoster}
+        durationInFrames={SWISS_POSTER_DURATION}
+        fps={FPS}
+        width={CANVAS.width}
+        height={CANVAS.height}
+        schema={swissPosterSchema}
+        defaultProps={{
+          kicker: "INTERNATIONAL TYPOGRAPHIC STYLE",
+          year: "1957",
+          headlineTop: "FONT",
+          headlineBottom: "HEADING",
+          metaLines: [
+            "Order, white space, precision.",
+            "Form follows function.",
+            "The grid is structure, not decoration.",
+          ],
+          footer: "DESIGNER WITH IMPACT",
+          seed: 7,
+          angle: -52,
+          counterAxis: true,
+          nodeX: 50,
+          nodeY: 48,
+          barCount: 10,
+          elbow: true,
+          headlineSize: 230,
+          paperColor: "#0e0e10",
+          inkColor: "#f2efe6",
+          accentColor: "#e2231a",
         }}
       />
 
@@ -377,64 +407,6 @@ export const RemotionRoot: React.FC = () => {
         height={CANVAS.height}
         schema={transparentOverlaySchema}
         defaultProps={{"label":"LIVE","badgeColor":"#ee074f","textColor":"#ffffff"}}
-      />
-
-      <Composition
-        id="EndCard"
-        component={EndCard}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={endCardSchema}
-        defaultProps={endCardDefaults}
-      />
-
-      <Composition
-        id="StatCountUp"
-        component={StatCountUp}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={statCountUpSchema}
-        defaultProps={statCountUpDefaults}
-      />
-
-      <Composition
-        id="QuoteCard"
-        component={QuoteCard}
-        durationInFrames={seconds(6)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={quoteCardSchema}
-        defaultProps={quoteCardDefaults}
-      />
-
-      {/* Vertical 9:16 for Stories / Reels / TikTok. */}
-      <Composition
-        id="VerticalPromo"
-        component={VerticalPromo}
-        durationInFrames={seconds(6)}
-        fps={FPS}
-        width={1080}
-        height={1920}
-        schema={verticalPromoSchema}
-        defaultProps={verticalPromoDefaults}
-      />
-
-      {/* Transparent caption overlay — render with the alpha codec for a real
-          alpha channel (see render server `alpha: true`). */}
-      <Composition
-        id="CaptionedClip"
-        component={CaptionedClip}
-        durationInFrames={seconds(5)}
-        fps={FPS}
-        width={CANVAS.width}
-        height={CANVAS.height}
-        schema={captionedClipSchema}
-        defaultProps={captionedClipDefaults}
       />
     </>
   );

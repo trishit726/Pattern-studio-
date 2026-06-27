@@ -1,7 +1,6 @@
 "use client"
 
-import { Download, Grid3x3, Layers, Loader2, RefreshCw, Save, Shuffle, Upload, Waves, Droplets } from "lucide-react"
-import Link from "next/link"
+import { Download, Grid3x3, Loader2, RefreshCw, Save, Shuffle, Upload, Waves, Droplets } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -64,12 +63,6 @@ function Toolbar() {
         <Button variant="ghost" size="sm" className="gap-1.5" onClick={e.load}>
           <Upload className="size-4" />
           Load
-        </Button>
-        <Button asChild variant="ghost" size="sm" className="gap-1.5">
-          <Link href="/templates">
-            <Layers className="size-4" />
-            Templates
-          </Link>
         </Button>
       </div>
 

@@ -8,6 +8,7 @@ import { Assembly, ASSEMBLY_DURATION } from "@/src/compositions/Assembly"
 import { Intro, INTRO_DURATION } from "@/src/compositions/Intro"
 import { Timeline, calculateTimelineDuration } from "@/src/compositions/Timeline"
 import { FourCardsGrid } from "@/src/compositions/FourCardsGrid"
+import { STYLE_COMPS, isStyleComp } from "./style-comps"
 
 /**
  * Remotion's <Player /> touches browser-only APIs and crashes during SSR.
@@ -30,6 +31,7 @@ export function SafePlayer() {
     assemblyProps,
     introProps,
     fourCardsProps,
+    styleProps,
     inputProps,
     duration,
     previewMode,
@@ -108,6 +110,26 @@ export function SafePlayer() {
         compositionHeight={1080}
         style={playerStyle}
         initialFrame={40}
+        controls
+        loop
+      />
+    )
+  }
+
+  // Style-Engine compositions (Swiss Editorial / Swiss Poster).
+  if (isStyleComp(comp)) {
+    const sc = STYLE_COMPS[comp]
+    return (
+      <Player
+        acknowledgeRemotionLicense
+        component={sc.component}
+        inputProps={styleProps[comp]}
+        durationInFrames={sc.durationInFrames}
+        fps={30}
+        compositionWidth={sc.width}
+        compositionHeight={sc.height}
+        style={playerStyle}
+        initialFrame={Math.min(100, sc.durationInFrames - 1)}
         controls
         loop
       />

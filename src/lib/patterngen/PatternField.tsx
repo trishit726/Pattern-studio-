@@ -1,30 +1,18 @@
 // PatternField — renders a PatternGen placement as animated DOM/SVG, driven by
 // useCurrentFrame(). Squares + tiles reveal with a clip-side wipe (staggered by
 // each element's seeded animDelay); dots pulse. Deterministic per seed.
-import React from "react";
+import React, { useMemo } from "react";
 import { useCurrentFrame } from "remotion";
 import {
-  generatePlacement,
   ANIM_TYPES,
   type TitleRect,
-  type ClipSide,
   type AnimType,
-  type ColorPair,
 } from "./engine";
+import { clipFor, revealProgress, clamp01 } from "../../engine/motion";
+import { generatePattern } from "../../engine/pattern";
+import type { MotifPreference } from "../../style/types";
 
 const DUR = 14; // reveal duration per element
-
-const clamp = (v: number) => Math.max(0, Math.min(1, v));
-
-const clipFor = (side: ClipSide, p: number): string => {
-  const r = (1 - p) * 100;
-  switch (side) {
-    case "left": return `inset(0 ${r}% 0 0)`;
-    case "right": return `inset(0 0 0 ${r}%)`;
-    case "top": return `inset(0 0 ${r}% 0)`;
-    case "bottom": return `inset(${r}% 0 0 0)`;
-  }
-};
 
 // 16 built-in 40x40 shapes matching the halfof8 selector grid. fg shape, transparent bg.
 // Exported so the web app's shape selector shows the same thumbnails.
@@ -105,78 +93,133 @@ export const PatternField: React.FC<{
   stagger?: number; // 0 = all reveal together, 5 = maximally spread
   enabledAnims?: AnimType[];
   amp?: number; // 0..1 audio energy — pulses shapes/dots when audio-reactive
-}> = ({ titles, colors, density, proximity, seed, begin = 0, stagger = 3, enabledAnims = ANIM_TYPES, amp = 0 }) => {
+  motifs?: MotifPreference[]; // which motifs to generate (defaults to legacy scatter)
+}> = ({ titles, colors, density, proximity, seed, begin = 0, stagger = 3, enabledAnims = ANIM_TYPES, amp = 0, motifs }) => {
   const SPREAD = 6 + stagger * 10; // frames over which elements stagger in
   const frame = useCurrentFrame();
-  const place = generatePlacement(titles, colors, density, proximity, seed, enabledAnims);
-  const f = frame - begin;
 
-  const prog = (delay: number) => clamp((f - delay * SPREAD) / DUR);
+  // Generation is deterministic + frame-independent, so run the motifs ONCE per
+  // input set (memoized) rather than every frame. The string signature keeps the
+  // memo stable even though array props are fresh references each render.
+  const sig = JSON.stringify([titles, colors, density, proximity, seed, enabledAnims, motifs]);
+  const elements = useMemo(
+    () => generatePattern({ titles, colors, density, proximity, seed, enabledAnims }, motifs),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sig],
+  );
+
+  const f = frame - begin;
+  const prog = (delay: number) => revealProgress(f, delay, SPREAD, DUR);
 
   return (
     <>
-      {/* colored squares */}
-      {place.squares.map((s) => {
-        const p = prog(s.animDelay);
-        if (p <= 0) return null;
-        return (
-          <div
-            key={s.id}
-            style={{
-              position: "absolute",
-              left: s.x,
-              top: s.y,
-              width: s.size,
-              height: s.size,
-              background: s.color,
-              clipPath: clipFor(s.clipSide, p),
-              WebkitClipPath: clipFor(s.clipSide, p),
-            }}
-          />
-        );
-      })}
+      {elements.map((el) => {
+        if (el.kind === "square") {
+          const p = prog(el.seedPhase);
+          if (p <= 0) return null;
+          return (
+            <div
+              key={el.id}
+              style={{
+                position: "absolute",
+                left: el.rect.x,
+                top: el.rect.y,
+                width: el.rect.w,
+                height: el.rect.h,
+                background: el.color,
+                clipPath: clipFor(el.clipSide, p),
+                WebkitClipPath: clipFor(el.clipSide, p),
+              }}
+            />
+          );
+        }
 
-      {/* pattern tiles */}
-      {place.patterns.map((t: { id: string; anim: AnimType; x: number; y: number; size: number; colors: ColorPair; animDelay: number; clipSide: ClipSide }) => {
-        const p = prog(t.animDelay);
-        if (p <= 0) return null;
-        return (
-          <div
-            key={t.id}
-            style={{
-              position: "absolute",
-              left: t.x,
-              top: t.y,
-              width: t.size,
-              height: t.size,
-              background: t.colors.bg,
-              clipPath: clipFor(t.clipSide, p),
-              WebkitClipPath: clipFor(t.clipSide, p),
-              transform: amp ? `scale(${1 + amp * 0.55})` : undefined,
-              transformOrigin: "center",
-            }}
-          >
-            <Shape anim={t.anim} fg={t.colors.fg} />
-          </div>
-        );
-      })}
+        if (el.kind === "glyph") {
+          const p = prog(el.seedPhase);
+          if (p <= 0) return null;
+          return (
+            <div
+              key={el.id}
+              style={{
+                position: "absolute",
+                left: el.rect.x,
+                top: el.rect.y,
+                width: el.rect.w,
+                height: el.rect.h,
+                background: el.colors.bg,
+                clipPath: clipFor(el.clipSide, p),
+                WebkitClipPath: clipFor(el.clipSide, p),
+                transform: amp ? `scale(${1 + amp * 0.55})` : undefined,
+                transformOrigin: "center",
+              }}
+            >
+              <Shape anim={el.glyph} fg={el.colors.fg} />
+            </div>
+          );
+        }
 
-      {/* pulsing dots */}
-      {place.dots.map((d) => {
-        const appear = clamp((f - d.blinkPhase * SPREAD) / 8);
+        if (el.kind === "bar") {
+          const p = prog(el.seedPhase);
+          if (p <= 0) return null;
+          return (
+            <div
+              key={el.id}
+              style={{
+                position: "absolute",
+                left: el.rect.x,
+                top: el.rect.y,
+                width: el.rect.w,
+                height: el.rect.h,
+                background: el.color,
+                transform: `rotate(${el.rotation}deg)`,
+                transformOrigin: "left center",
+                clipPath: clipFor(el.clipSide, p),
+                WebkitClipPath: clipFor(el.clipSide, p),
+              }}
+            />
+          );
+        }
+
+        if (el.kind === "disc" || el.kind === "ring") {
+          const p = prog(el.seedPhase);
+          if (p <= 0) return null;
+          const isRing = el.kind === "ring";
+          return (
+            <div
+              key={el.id}
+              style={{
+                position: "absolute",
+                left: el.cx - el.r,
+                top: el.cy - el.r,
+                width: el.r * 2,
+                height: el.r * 2,
+                borderRadius: "50%",
+                ...(isRing
+                  ? { border: `${el.thickness}px solid ${el.color}`, background: "transparent" }
+                  : { background: el.color }),
+                opacity: p,
+                transform: `scale(${0.7 + p * 0.3})`,
+                transformOrigin: "center",
+              }}
+            />
+          );
+        }
+
+        // el.kind === "dot"
+        const appear = clamp01((f - el.blinkPhase * SPREAD) / 8);
         if (appear <= 0) return null;
-        const blink = 0.5 + 0.5 * Math.sin(frame * d.blinkSpeed + d.blinkPhase * Math.PI * 2);
+        const blink = 0.5 + 0.5 * Math.sin(frame * el.blinkSpeed + el.blinkPhase * Math.PI * 2);
         return (
           <div
-            key={d.id}
+            key={el.id}
             style={{
               position: "absolute",
-              left: d.x,
-              top: d.y,
+              left: el.x,
+              top: el.y,
               width: 9,
               height: 9,
               borderRadius: 3,
-              background: d.color,
+              background: el.color,
               opacity: Math.min(1, appear * (0.4 + 0.6 * blink) * (1 + amp * 1.3)),
               transform: amp ? `scale(${1 + amp * 1.1})` : undefined,
             }}
